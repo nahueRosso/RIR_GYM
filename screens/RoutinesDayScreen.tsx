@@ -63,7 +63,7 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
               onPress={() => navigation.navigate("RoutineExercises",{ dayID: day.id,dayName: day.name ,routineID:routineID, routineName:routineName})}
               style={{ margin: 20 }}
             >
-              {day.name}a {console.log(day.name)}
+              {day.name}
             </Button>
           ))
         )}

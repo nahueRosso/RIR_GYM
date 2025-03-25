@@ -81,7 +81,7 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
               navigation.navigate("RoutineOneExercise", {
                 routineID: item.id,
                 routineName: item.name,
-                api:routines,
+                apis:routines,
                 dayID:dayID,
                 routineNameFirst:routineName
               })

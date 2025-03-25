@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, Alert } from "react-native";
 import { Appbar, Button, TextInput } from "react-native-paper";
 import { NavigationProp } from "@react-navigation/native";
@@ -13,131 +13,161 @@ const RoutineOneExerciseScreen = ({
   navigation,
   route,
 }: CreateDaysScreenProps) => {
-  const { routineID, routineName, api, dayID,routineNameFirst } = route.params;
-
-  console.log(routineNameFirst)
-
-  const [main, setMain] = useState(() =>
-    api.exercises.find((e: any) => e.id === routineID)
-  );
-
+  const { routineID, routineName, apis, dayID, routineNameFirst } = route.params;
+  const [api, setApi] = useState(apis);
+  const [main, setMain] = useState(() => api.exercises.find((e: any) => e.id === routineID));
   const [weights, setWeights] = useState<any>(main?.arrSetWeight || []);
+  const [index, setIndex] = useState(api.exercises.findIndex((e: any) => e.id === routineID));
+  const [isSaving, setIsSaving] = useState(false);
 
+  // Cargar datos iniciales
   useEffect(() => {
-    setWeights(main?.arrSetWeight || []);
-  }, [main]); // Se actualiza cuando cambia de ejercicio
+    const loadData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem("routines");
+        if (storedData) {
+          const routinesList = JSON.parse(storedData);
+          const routine = routinesList.find((r: any) => r.name === routineNameFirst);
+          if (routine) {
+            const day = routine.days.find((d: any) => d.id === dayID);
+            if (day) {
+              const exercise = day.exercises.find((e: any) => e.id === main?.id);
+              if (exercise) {
+                setWeights(exercise.arrSetWeight || []);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+    
+    loadData();
+  }, [main?.id]);
 
-  const getNextExercise = () => {
-    setMain((prev: any) => {
-      const index = api.exercises.findIndex((e: any) => e.id === prev?.id);
-      if (index === -1) return prev;
-      const nextIndex = (index + 1) % api.exercises.length;
-      return api.exercises[nextIndex];
-    });
-  };
-
-  const getPreviousExercise = () => {
-    setMain((prev: any) => {
-      const index = api.exercises.findIndex((e: any) => e.id === prev?.id);
-      if (index === -1) return prev;
-      const prevIndex = (index - 1 + api.exercises.length) % api.exercises.length;
-      return api.exercises[prevIndex];
-    });
-  };
- 
-  const handleWeightChange = async (index: number, value: string) => {
-    const newWeights = [...weights];
-    newWeights[index] = parseFloat(value) || 0;
-    setWeights(newWeights);
-  
+  // Guardar cambios en AsyncStorage
+  const saveChanges = async () => {
+    if (!main) return;
+    
+    setIsSaving(true);
     try {
       const storedData = await AsyncStorage.getItem("routines");
       const routinesList = storedData ? JSON.parse(storedData) : [];
-  
-      console.log("Rutinas existentes:", routinesList, routineNameFirst);
-  
-      // 1️⃣ Buscar la rutina (si no existe, solo log y return)
+
       const currentRoutine = routinesList.find((r: any) => r.name === routineNameFirst);
-      if (!currentRoutine) {
-        console.log("⚠️ Rutina no encontrada:", routineName);
-        return; // Salir si no existe
-      }
-  
-      // 2️⃣ Buscar el día (si no existe, solo log y return)
-      if (!Array.isArray(currentRoutine.days)) {
-        console.log("⚠️ 'days' no es un array o no existe");
-        return;
-      }
-  
+      if (!currentRoutine) throw new Error("Rutina no encontrada");
+
       const currentDay = currentRoutine.days.find((d: any) => d.id === dayID);
-      if (!currentDay) {
-        console.log("⚠️ Día no encontrado:", dayID);
-        return;
-      }
-  
-      // 3️⃣ Buscar el ejercicio (si no existe, solo log y return)
-      if (!Array.isArray(currentDay.exercises)) {
-        console.log("⚠️ 'exercises' no es un array o no existe");
-        return;
-      }
-  
+      if (!currentDay) throw new Error("Día no encontrado");
+
       const exerciseIndex = currentDay.exercises.findIndex((e: any) => e.id === main.id);
-      if (exerciseIndex === -1) {
-        console.log("⚠️ Ejercicio no encontrado:", main.id);
-        return;
-      }
-  
-      // 4️⃣ Si todo existe, actualizar el peso
-      currentDay.exercises[exerciseIndex].arrSetWeight = newWeights;
+      if (exerciseIndex === -1) throw new Error("Ejercicio no encontrado");
+
+      // Actualizar en AsyncStorage
+      currentDay.exercises[exerciseIndex].arrSetWeight = [...weights];
       await AsyncStorage.setItem("routines", JSON.stringify(routinesList));
-      console.log("✅ Peso actualizado correctamente");
+      
+      // Actualizar en el estado local
+      const updatedApi = {...api};
+      const localExerciseIndex = updatedApi.exercises.findIndex((e:any) => e.id === main.id);
+      if (localExerciseIndex !== -1) {
+        updatedApi.exercises[localExerciseIndex].arrSetWeight = [...weights];
+        setApi(updatedApi);
+      }
+
+      console.log("Cambios guardados exitosamente");
     } catch (error) {
-      console.error("❌ Error al guardar:", error);
+      console.error("Error al guardar:", error);
+      Alert.alert("Error", "No se pudieron guardar los cambios");
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  
+  const handleWeightChange = (index: number, value: string) => {
+    const newWeights = [...weights];
+    newWeights[index] = parseFloat(value) || 0;
+    setWeights(newWeights);
+  };
 
-  useEffect(() => {
-    console.log(weights);
-  }, [weights]);
+  const getNextExercise = async () => {
+    // Primero guardamos los cambios del ejercicio actual
+    await saveChanges();
+    
+    // Luego navegamos al siguiente ejercicio
+    setMain((prev: any) => {
+      const currentIndex = api.exercises.findIndex((e: any) => e.id === prev?.id);
+      if (currentIndex === -1) return prev;
+      const nextIndex = (currentIndex + 1) % api.exercises.length;
+      setIndex(nextIndex);
+      const nextExercise = api.exercises[nextIndex];
+      setWeights(nextExercise.arrSetWeight || []);
+      return nextExercise;
+    });
+  };
+  
+  const getPreviousExercise = async () => {
+    // Primero guardamos los cambios del ejercicio actual
+    await saveChanges();
+    
+    // Luego navegamos al ejercicio anterior
+    setMain((prev: any) => {
+      const currentIndex = api.exercises.findIndex((e: any) => e.id === prev?.id);
+      if (currentIndex === -1) return prev;
+      const prevIndex = (currentIndex - 1 + api.exercises.length) % api.exercises.length;
+      setIndex(prevIndex);
+      const prevExercise = api.exercises[prevIndex];
+      setWeights(prevExercise.arrSetWeight || []);
+      return prevExercise;
+    });
+  };
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <Appbar.Header>
-        <Appbar.Content title="RoutineOneExerciseScreen" />
+        <Appbar.Content title={main?.name || "Ejercicio"} />
       </Appbar.Header>
 
-      <Text>
-        Ejercicio actual: {main?.name || "No disponible"} {"\n"}
-        Índice: {api.exercises.findIndex((e: any) => e.id === main?.id) + 1} / {api.exercises.length}
-      </Text>
+      <View style={{ padding: 16 }}>
+        <Text style={{ textAlign: "center", marginBottom: 16 }}>
+          Ejercicio {api.exercises.findIndex((e: any) => e.id === main?.id) + 1} de {api.exercises.length}
+        </Text>
 
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <Button mode="contained" onPress={getPreviousExercise} style={{ flex: 1, margin: 5 }}>
-          Anterior
-        </Button>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <Button 
+            mode="contained" 
+            onPress={getPreviousExercise} 
+            style={{ flex: 1, margin: 5 }}
+            disabled={isSaving}
+          >
+            Anterior
+          </Button>
 
-        <View>
-          <Text style={{ textAlign: "center", fontWeight: "bold", flex: 1 }}>{main.name}</Text>
-
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {weights.map((weight: any, index: any) => (
-              <TextInput
-                key={index}
-                placeholder={weight.toString()}
-                // value={weight.toString()}  // Ahora refleja correctamente el estado
-                onChangeText={(text) => handleWeightChange(index, text)}
-                keyboardType="numeric"
-                style={{ margin: 5, width: 50 }}
-              />
-            ))}
+          <View style={{ flex: 2, alignItems: 'center' }}>
+            <View style={{ flexDirection: "row", justifyContent: 'center', flexWrap: 'wrap' }}>
+              {weights.map((weight: any, idx: any) => (
+                <TextInput
+                  key={idx}
+                  value={weight.toString()}
+                  // placeholder={weight.toString()}
+                  onChangeText={(text) => handleWeightChange(idx, text)}
+                  keyboardType="numeric"
+                  style={{ margin: 5, width: 60, textAlign: 'center' }}
+                />
+              ))}
+            </View>
           </View>
-        </View>
 
-        <Button mode="contained" onPress={getNextExercise} style={{ flex: 1, margin: 5 }}>
-          Siguiente
-        </Button>
+          <Button 
+            mode="contained" 
+            onPress={getNextExercise} 
+            style={{ flex: 1, margin: 5 }}
+            disabled={isSaving}
+          >
+            Siguiente
+          </Button>
+        </View>
       </View>
     </View>
   );
