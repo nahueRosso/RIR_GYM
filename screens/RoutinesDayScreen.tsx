@@ -19,7 +19,7 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
   const [routines, setRoutines] = useState<Routine[]>([]); // ⬅ Define el tipo
   const { routineID, routineName } = route.params;
   
-  console.log('routineID: ',routineID, 'routineName: ',routineName)
+  console.log( 'routineName: ',routineName)
 
     // const [routineName, setRoutineName] = useState('');
   // const [routinesCount, setRoutinesCount] = useState(0); // Estado para contar las rutinas
@@ -49,7 +49,7 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
   return (
     <View>
       <Appbar.Header>
-        <Appbar.Content title="Rutinas" />
+        <Appbar.Content title="RutinasDayScreen" />
       </Appbar.Header>
       <Text>{routineName}</Text>
       {routines
@@ -58,11 +58,12 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
           Object.values(item.days).map((day: any, index) => ( // Mapea correctamente los días
             <Button
               key={index}
+              
               mode="contained"
               onPress={() => navigation.navigate("RoutineExercises",{ dayID: day.id,dayName: day.name ,routineID:routineID, routineName:routineName})}
               style={{ margin: 20 }}
             >
-              {day.name}
+              {day.name}a {console.log(day.name)}
             </Button>
           ))
         )}

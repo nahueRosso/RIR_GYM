@@ -37,7 +37,7 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
   return (
     <View>
       <Appbar.Header>
-        <Appbar.Content title="Rutinas" />
+        <Appbar.Content title="RoutinesScreen" />
       </Appbar.Header>
       <Text>Lista de Rutinas:</Text>
       {routines.map((item: any, index: any) => {
@@ -48,7 +48,7 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
       onPress={() =>  navigation.navigate('RoutinesDay', { routineID: item.id,routineName: item.name })}
       style={{ margin: 20 }}
     >
-      {item.name} 
+      {item.name} {console.log(item.name)}
     </Button>
   );
 })}

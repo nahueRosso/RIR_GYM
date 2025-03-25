@@ -18,7 +18,7 @@ interface CreateDaysScreenProps {
 const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) => {
   const { dayID, dayName,routineID, routineName } = route.params;
   
-  console.log('dayID: ',dayID,'dayName: ', dayName,'routineName: ',routineName,'routineID: ', routineID)
+  console.log('routineName: ',routineName)
 
   const [routines, setRoutines] = useState<any | null>(null); // Estado inicial como `null`
   const [loading, setLoading] = useState(true); // Estado de carga
@@ -67,7 +67,7 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
   return (
     <View>
       <Appbar.Header>
-        <Appbar.Content title="Rutinas" />
+        <Appbar.Content title="RutineExercisesScreen" />
       </Appbar.Header>
 
       <Text>{dayName}</Text>
@@ -82,6 +82,8 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
                 routineID: item.id,
                 routineName: item.name,
                 api:routines,
+                dayID:dayID,
+                routineNameFirst:routineName
               })
             }
             style={{ margin: 20 }}

@@ -111,7 +111,7 @@ const CreateDaysScreen = ({ navigation, route }: CreateDaysScreenProps) => {
       setExeName("");
       setSet("");
       setWeight("");
-      setRir("");
+      setRir("2");
       setArrSetWeight("");
     } catch (error) {
       console.error("Error al guardar el ejercicio:", error);
