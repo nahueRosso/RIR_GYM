@@ -1,0 +1,227 @@
+[
+    {
+      "_id": "67dcaa4ac42543c3f47c4021",
+      "index": 0,
+      "guid": "40d8730a-b287-4df1-934d-e66385c1cfb7",
+      "isActive": true,
+      "balance": "$2,698.56",
+      "picture": "http://placehold.it/32x32",
+      "age": 23,
+      "eyeColor": "brown",
+      "name": "Sykes Massey",
+      "gender": "male",
+      "company": "SCHOOLIO",
+      "email": "sykesmassey@schoolio.com",
+      "phone": "+1 (980) 472-3464",
+      "address": "659 Bragg Street, Sanders, Colorado, 2479",
+      "about": "Eu tempor nostrud excepteur cillum aute in tempor commodo labore quis cupidatat occaecat cillum. Sit duis magna consectetur veniam sint enim minim officia officia tempor. Pariatur ullamco exercitation eu adipisicing ipsum magna in consectetur sit reprehenderit aliqua.\r\n",
+      "registered": "2021-01-31T09:24:30 +03:00",
+      "latitude": -87.984254,
+      "longitude": 129.184519,
+      "tags": [
+        "nisi",
+        "voluptate",
+        "fugiat",
+        "ex",
+        "ipsum",
+        "ad",
+        "commodo"
+      ],
+      "friends": [
+        {
+          "id": 0,
+          "name": "Mayo Copeland"
+        },
+        {
+          "id": 1,
+          "name": "Jimmie Carson"
+        },
+        {
+          "id": 2,
+          "name": "Abigail Franco"
+        }
+      ],
+      "greeting": "Hello, Sykes Massey! You have 5 unread messages.",
+      "favoriteFruit": "apple"
+    },
+    {
+      "_id": "67dcaa4a3c47170d64784424",
+      "index": 1,
+      "guid": "567077c4-fd7e-4a34-a70b-899b0ba9a7c2",
+      "isActive": true,
+      "balance": "$2,780.31",
+      "picture": "http://placehold.it/32x32",
+      "age": 37,
+      "eyeColor": "brown",
+      "name": "Teri Banks",
+      "gender": "female",
+      "company": "DANCITY",
+      "email": "teribanks@dancity.com",
+      "phone": "+1 (873) 495-2618",
+      "address": "982 Lott Place, Grazierville, Mississippi, 4626",
+      "about": "Pariatur ullamco sunt quis incididunt sit velit aliquip nisi. Eu pariatur aliqua officia officia culpa aliquip. Quis voluptate nulla dolor fugiat deserunt veniam consectetur cillum adipisicing aute. Ad laborum labore id nulla ea in id sit mollit. Tempor mollit eu qui elit aliqua est. Minim labore consectetur fugiat et pariatur est enim officia duis.\r\n",
+      "registered": "2022-03-12T06:00:30 +03:00",
+      "latitude": 16.961397,
+      "longitude": 16.971159,
+      "tags": [
+        "commodo",
+        "consequat",
+        "qui",
+        "pariatur",
+        "magna",
+        "ea",
+        "culpa"
+      ],
+      "friends": [
+        {
+          "id": 0,
+          "name": "Golden Grimes"
+        },
+        {
+          "id": 1,
+          "name": "Collins Gilmore"
+        },
+        {
+          "id": 2,
+          "name": "Sallie Velasquez"
+        }
+      ],
+      "greeting": "Hello, Teri Banks! You have 2 unread messages.",
+      "favoriteFruit": "strawberry"
+    },
+    {
+      "_id": "67dcaa4ae584551547406246",
+      "index": 2,
+      "guid": "a3590228-711b-4e76-9765-490ef6c452d0",
+      "isActive": false,
+      "balance": "$3,714.45",
+      "picture": "http://placehold.it/32x32",
+      "age": 22,
+      "eyeColor": "brown",
+      "name": "Barnett Mullen",
+      "gender": "male",
+      "company": "UTARIAN",
+      "email": "barnettmullen@utarian.com",
+      "phone": "+1 (801) 401-3595",
+      "address": "870 Georgia Avenue, Lindisfarne, Michigan, 2283",
+      "about": "Voluptate sint proident commodo velit laboris amet enim commodo id deserunt. Proident aliquip ea esse anim ex velit cillum. Ipsum Lorem exercitation officia irure qui qui. Quis eiusmod ipsum commodo nisi elit exercitation non. Amet nisi aute ex laboris deserunt qui ut. Nostrud cupidatat elit officia in aute non ad Lorem deserunt cupidatat ullamco pariatur dolore. Occaecat fugiat commodo incididunt Lorem nostrud pariatur laboris sint veniam anim.\r\n",
+      "registered": "2019-04-05T08:30:24 +03:00",
+      "latitude": -57.82501,
+      "longitude": 53.849185,
+      "tags": [
+        "duis",
+        "incididunt",
+        "consequat",
+        "aliqua",
+        "non",
+        "tempor",
+        "incididunt"
+      ],
+      "friends": [
+        {
+          "id": 0,
+          "name": "Ball Bruce"
+        },
+        {
+          "id": 1,
+          "name": "Adams Meyers"
+        },
+        {
+          "id": 2,
+          "name": "Lakisha Fisher"
+        }
+      ],
+      "greeting": "Hello, Barnett Mullen! You have 3 unread messages.",
+      "favoriteFruit": "strawberry"
+    },
+    {
+      "_id": "67dcaa4ae354c6b0b8c3627c",
+      "index": 3,
+      "guid": "cffebc17-6c5a-43fd-9faf-784259048c8f",
+      "isActive": false,
+      "balance": "$3,811.78",
+      "picture": "http://placehold.it/32x32",
+      "age": 33,
+      "eyeColor": "blue",
+      "name": "Callie Farley",
+      "gender": "female",
+      "company": "DOGNOSIS",
+      "email": "calliefarley@dognosis.com",
+      "phone": "+1 (991) 427-2457",
+      "address": "903 Gunnison Court, Nutrioso, New Hampshire, 3792",
+      "about": "Laboris officia proident cillum exercitation amet aliquip Lorem voluptate mollit enim quis reprehenderit. Tempor in incididunt aute laborum in esse nisi mollit. Et labore labore pariatur esse aliqua in sunt. Cupidatat aliqua duis enim ipsum dolore ea elit tempor reprehenderit Lorem minim ad incididunt laboris.\r\n",
+      "registered": "2019-07-06T07:05:10 +03:00",
+      "latitude": 53.757738,
+      "longitude": -175.361295,
+      "tags": [
+        "ea",
+        "sunt",
+        "aliqua",
+        "ipsum",
+        "eiusmod",
+        "deserunt",
+        "eu"
+      ],
+      "friends": [
+        {
+          "id": 0,
+          "name": "Lara Chapman"
+        },
+        {
+          "id": 1,
+          "name": "Colon Rodriguez"
+        },
+        {
+          "id": 2,
+          "name": "Patrice Newman"
+        }
+      ],
+      "greeting": "Hello, Callie Farley! You have 10 unread messages.",
+      "favoriteFruit": "apple"
+    },
+    {
+      "_id": "67dcaa4a34e67f31ae3e88e2",
+      "index": 4,
+      "guid": "f6a24db3-6a97-420f-94ca-3bc9ffbf5844",
+      "isActive": false,
+      "balance": "$3,543.09",
+      "picture": "http://placehold.it/32x32",
+      "age": 31,
+      "eyeColor": "blue",
+      "name": "Stout Ewing",
+      "gender": "male",
+      "company": "QIMONK",
+      "email": "stoutewing@qimonk.com",
+      "phone": "+1 (934) 487-2198",
+      "address": "303 Dumont Avenue, Walton, Arizona, 3841",
+      "about": "Sint duis non officia deserunt do eu aliquip exercitation nisi commodo culpa occaecat nostrud eu. Magna pariatur deserunt aliquip laboris sunt est incididunt eiusmod occaecat proident. Ex ipsum ut sit excepteur enim ullamco dolor velit exercitation eu nisi sit sint proident. Laboris amet deserunt veniam irure aliquip labore qui nostrud magna veniam ex id voluptate. Velit aliquip mollit sunt commodo aliqua consequat veniam. Nostrud dolore in commodo id in nisi nostrud do ex nostrud id qui duis voluptate.\r\n",
+      "registered": "2020-01-19T11:49:30 +03:00",
+      "latitude": -4.87544,
+      "longitude": -24.430821,
+      "tags": [
+        "aliquip",
+        "duis",
+        "tempor",
+        "sunt",
+        "ad",
+        "reprehenderit",
+        "adipisicing"
+      ],
+      "friends": [
+        {
+          "id": 0,
+          "name": "Meredith Greene"
+        },
+        {
+          "id": 1,
+          "name": "Nanette Rios"
+        },
+        {
+          "id": 2,
+          "name": "Reed Poole"
+        }
+      ],
+      "greeting": "Hello, Stout Ewing! You have 8 unread messages.",
+      "favoriteFruit": "strawberry"
+    }
+  ]
