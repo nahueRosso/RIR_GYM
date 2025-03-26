@@ -1,131 +1,200 @@
+// import { NavBar, Button, Image } from "antd-mobile";
+// import { NavigationProp } from "@react-navigation/native";
+// import { View, Text, StyleSheet, Dimensions, ImageBackground } from "react-native";
+// import React from "react";
+// import db from "../db.json";
+// import OptimizedImage from "../components/OptimizedImage";
+// import Svg, { Polygon } from "react-native-svg";
+
+// const imageBk = require("../assets/fotoPortada_full.jpg");
+
+// const windowWidth = Dimensions.get("window").width;
+// const windowHeight = Dimensions.get("window").height;
+// const screenWidth = Dimensions.get("screen").width;
+// const screenHeight = Dimensions.get("screen").height;
+
+// interface HomeScreenProps {
+//   navigation: NavigationProp<any>;
+// }
+
+// export default function HomeScreen({ navigation }: HomeScreenProps) {
+//   console.log(
+//     "windowWidth: ",
+//     windowWidth,
+//     "windowHeight: ",
+//     windowHeight,
+//     "screenWidth: ",
+//     screenWidth,
+//     "screenHeight: ",
+//     screenHeight
+//   );
+
+//   return (
+//     <ImageBackground 
+//       source={imageBk} 
+//       style={styles.backgroundImage}
+//       resizeMode="cover"
+      
+//     >
+//       <View style={styles.container}>
+//         <View style={styles.content}>
+//           <Button
+//             color="primary"
+//             onClick={() => navigation.navigate("Routines")}
+//             style={styles.button}
+//           >
+//             Ir a las rutinas
+//           </Button>
+
+         
+//         </View>
+//       </View>
+//     </ImageBackground>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   backgroundImage: {
+//     flex: 1,
+//     width: '100%',
+//     height: '100%',
+//   },
+//   container: {
+//     flex: 1,
+//     width: screenWidth,
+//     height: screenHeight,
+//   },
+//   content: {
+//     display:'flex',
+//     padding: 0,
+//     backfaceVisibility: "hidden",
+//     alignContent:'center',
+//     alignItems:'center',
+//     justifyContent:'flex-end'
+//   },
+//   box: {
+//     width: screenWidth,
+//     height: screenHeight,
+//     margin: 0,
+//     padding: 0,
+//     backfaceVisibility: "hidden",
+//   },
+//   boxOut: {
+//     width: screenWidth,
+//     height: screenHeight * 0.4,
+//     zIndex: 100,
+//     position: "absolute",
+//     bottom: 0,
+//   },
+//   button: {
+//     marginBottom: 20,
+//     zIndex: 100,
+//     position:'absolute',
+//     justifyContent:'space-between',
+//     alignItems:'center'
+//   },
+// });
+
+import React from 'react';
+import {View, Dimensions, StyleSheet, Text, ImageBackground } from 'react-native';
+import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import { NavBar, Button, Image } from "antd-mobile";
 import { NavigationProp } from "@react-navigation/native";
-import { View, Text, StyleSheet } from "react-native";
-import React from "react";
-import db from "../db.json";
-import OptimizedImage from "../components/OptimizedImage";
-import { Dimensions } from "react-native";
-import Svg, { Polygon } from "react-native-svg";
+import {RightOutline } from "antd-mobile-icons"
 
-const imageBk = require("../assets/fotoPortada.jpg");
-
-const windowWidth = Dimensions.get("window").width;
-const windowHeight = Dimensions.get("window").height;
-const screenWidth = Dimensions.get("screen").width;
-const screenHeight = Dimensions.get("screen").height;
+const imageBk = require("../assets/fotoPortada_full.jpg");
 
 interface HomeScreenProps {
   navigation: NavigationProp<any>;
 }
 
 export default function HomeScreen({ navigation }: HomeScreenProps) {
-  console.log(
-    "windowWidth: ",
-    windowWidth,
-    "windowHeight: ",
-    windowHeight,
-    "screenWidth: ",
-    screenWidth,
-    "screenHeight: ",
-    screenHeight
-  );
-
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Button
-          color="primary"
-          onClick={() => navigation.navigate("Routines")}
-          style={styles.button}
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={['left', 'right']}>
+        <ImageBackground 
+          source={imageBk} 
+          resizeMode="cover"
+          style={styles.image}
         >
-          Ir a las rutinas
-        </Button>
-
-        {/* <Button
-          color="primary"
-          onClick={() => navigation.navigate("CreateRoutine")}
-          style={styles.button}
-        >
-          CreateRoutine
-        </Button>
-
-        <Button
-          color="primary"
-          onClick={() => navigation.navigate("DelateRoutine")}
-          style={styles.button}
-        >
-          DelateRoutine
-        </Button> */}
-
-        <View style={styles.box}>
-          <Image src={imageBk.uri} style={styles.image} />
-
-          {/* <View style={styles.boxImage}></View> */}
-          <View style={styles.boxOut}>
-            <Svg
-              height="100%"
-              width={windowWidth}
-              viewBox="0 0 100 100"
-              style={{ position: "absolute" }}
-            >
-              <Polygon points="150,0 150,100 -50,100 -50,20" fill="black" />
-              {/* <Polygon points="100,0 100,100 0,100 0,20" fill="black" /> */}
-            </Svg>
+          <View style={styles.textContainer}>
+          <Text style={styles.textH2}>CREATE A WORKOUT PLAN</Text>
+          <Text style={styles.textH1}>TO STAY FIT</Text>
           </View>
-        </View>
-      </View>
-    </View>
+          <View style={styles.buttonContainer}>
+            <Button
+              // color="danger"
+              onClick={() => navigation.navigate("Routines")}
+              style={styles.button}
+            >
+              {`EMPEZAR  `}
+              <RightOutline style={styles.svg}/>
+            </Button>
+          </View>
+
+        </ImageBackground>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
-    width: screenWidth,
-    height: screenHeight,
-    backfaceVisibility: "hidden",
-  },
-  content: {
-    display:'flex',
-    padding: 0,
-    backfaceVisibility: "hidden",
-    alignContent:'center',
-    alignItems:'center',
-    justifyContent:'flex-end'
-  },
-  box: {
-    width: screenWidth,
-    height: screenHeight,
-    backgroundColor: "red",
-    margin: 0,
-    padding: 0,
-    backfaceVisibility: "hidden",
   },
   image: {
-    width: "100%",
-    height: screenHeight * 0.75,
-    position: "absolute",
-    zIndex: 10,
-    backfaceVisibility: "hidden",
-    alignSelf: "center",
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
   },
-  boxOut: {
-    width: screenWidth,
-    height: screenHeight * 0.4,
-    // backgroundColor:'red',
-    zIndex: 100,
-    position: "absolute",
-    bottom: 0,
+  textContainer:{
+    position: 'absolute',
+    bottom: 180, // Ajusta este valor según necesites
+    left: 0,
+    right: 0,
+    alignItems: 'center', // Centra horizontalmente
   },
-  userText: {
-    marginBottom: 8,
+  textH1: {
+    color: 'white',
+    fontSize: 25,
+    fontFamily:'Cochin',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textH2: {
+    color: 'white',
+    fontSize: 25,
+    fontFamily:'Cochin',
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 80, 
+    left: 0,
+    right: 0,
+    display:'flex',
+    alignContent:'center',
+    alignItems: 'center', 
   },
   button: {
-    marginBottom: 20,
-    zIndex: 100,
+    fontFamily:'Cochin',
+    fontWeight: 'bold',
+    fontSize: 17,
+    color:'#161618',
+    borderColor:'#A1D70F',
+    backgroundColor:'#BCFD0E',
+    width: '80%',
+    maxWidth: 300,
+    borderStyle:'solid',
+    borderRadius:30,
+  },
+  svg:{
     position:'absolute',
-    justifyContent:'space-between',
-    alignItems:'center'
+    right:20,
+    top:10,
+    color:'#161618',
+    marginLeft:10,
+    fontWeight: 'bold',
   },
 });

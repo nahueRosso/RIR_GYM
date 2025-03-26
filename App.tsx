@@ -59,7 +59,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home" >
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Routines" component={RoutinesScreen} />
+          <Stack.Screen name="Routines" component={RoutinesScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="RoutinesDay" component={RoutinesDayScreen} />
           <Stack.Screen name="RoutineExercises" component={RoutineExercisesScreen} />
           <Stack.Screen name="RoutineOneExercise" component={RoutineOneExerciseScreen} />

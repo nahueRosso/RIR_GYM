@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavBar, Button } from "antd-mobile";
-import { IconOutline } from '@ant-design/icons-react-native';
+import { IconOutline } from "@ant-design/icons-react-native";
 import { NavigationProp } from "@react-navigation/native";
 
 interface Routine {
@@ -16,10 +16,13 @@ interface CreateDaysScreenProps {
   route: any;
 }
 
-const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) => {
-  const { dayID, dayName,routineID, routineName } = route.params;
-  
-  console.log('routineName: ',routineName)
+const RoutineExercisesScreen = ({
+  navigation,
+  route,
+}: CreateDaysScreenProps) => {
+  const { dayID, dayName, routineID, routineName } = route.params;
+
+  console.log("routineName: ", routineName);
 
   const [routines, setRoutines] = useState<any | null>(null); // Estado inicial como `null`
   const [loading, setLoading] = useState(true); // Estado de carga
@@ -28,7 +31,9 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
     const fetchRoutines = async () => {
       try {
         const storedData = await AsyncStorage.getItem("routines");
-        const routinesList: Routine[] = storedData ? JSON.parse(storedData) : [];
+        const routinesList: Routine[] = storedData
+          ? JSON.parse(storedData)
+          : [];
 
         // Buscar la rutina correspondiente
         const foundRoutine = routinesList.find((item) => item.id === routineID);
@@ -55,10 +60,13 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
     fetchRoutines();
   }, [routineID, dayID]);
 
-  const goAddExe = () =>{
-    navigation.navigate('CreateExercises', { dayID: dayID,dayName: dayName ,routineName:routineName})
-  }
-
+  const goAddExe = () => {
+    navigation.navigate("CreateExercises", {
+      dayID: dayID,
+      dayName: dayName,
+      routineName: routineName,
+    });
+  };
 
   // Si está cargando, mostrar spinner
   if (loading) {
@@ -67,15 +75,16 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
 
   return (
     <View>
-
       <NavBar
-                    back={<IconOutline name="right" />}
-                    onBack={() => navigation.goBack()}
-                    backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
-                    style={{ backgroundColor: '#1890ff' }}
-                  >
-                    <Text style={{ color: 'white', fontSize: 18 }}>"RutineExercisesScreen"</Text>
-            </NavBar>
+        back={<IconOutline name="right" />}
+        onBack={() => navigation.goBack()}
+        backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
+        style={{ backgroundColor: "#1890ff" }}
+      >
+        <Text style={{ color: "white", fontSize: 18 }}>
+          "RutineExercisesScreen"
+        </Text>
+      </NavBar>
 
       <Text>{dayName}</Text>
 
@@ -87,9 +96,9 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
               navigation.navigate("RoutineOneExercise", {
                 routineID: item.id,
                 routineName: item.name,
-                apis:routines,
-                dayID:dayID,
-                routineNameFirst:routineName
+                apis: routines,
+                dayID: dayID,
+                routineNameFirst: routineName,
               })
             }
             style={{ margin: 20 }}
@@ -101,10 +110,8 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
         <Text>No hay ejercicios disponibles</Text>
       )}
 
-       <Button 
-            onClick={goAddExe}>
-              agregar mas ejercicios
-            </Button>
+      <Button onClick={goAddExe}>agregar mas ejercicios</Button>
+
     </View>
   );
 };
