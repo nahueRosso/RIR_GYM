@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-// import { initDatabase } from './database/Database';
 import { View, Text, ActivityIndicator } from 'react-native';
+import { ConfigProvider } from 'antd-mobile';
+import enUS from 'antd-mobile/es/locales/en-US';
 
 // Importar las pantallas
 import HomeScreen from './screens/HomeScreen';
@@ -55,10 +55,10 @@ export default function App() {
   // }
 
   return (
-    <PaperProvider>
+    <ConfigProvider locale={enUS}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Navigator initialRouteName="Home" >
+          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Routines" component={RoutinesScreen} />
           <Stack.Screen name="RoutinesDay" component={RoutinesDayScreen} />
           <Stack.Screen name="RoutineExercises" component={RoutineExercisesScreen} />
@@ -69,6 +69,6 @@ export default function App() {
           <Stack.Screen name="DelateRoutine" component={DelateRoutineScreen} />
         </Stack.Navigator>
       </NavigationContainer>
-    </PaperProvider>
+    </ConfigProvider>
   );
 }

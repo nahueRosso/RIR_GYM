@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Appbar, Button } from "react-native-paper";
+import { NavBar, Button } from "antd-mobile";
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NavigationProp } from "@react-navigation/native";
 
 interface Routine {
@@ -66,9 +67,15 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
 
   return (
     <View>
-      <Appbar.Header>
-        <Appbar.Content title="RutineExercisesScreen" />
-      </Appbar.Header>
+
+      <NavBar
+                    back={<IconOutline name="right" />}
+                    onBack={() => navigation.goBack()}
+                    backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
+                    style={{ backgroundColor: '#1890ff' }}
+                  >
+                    <Text style={{ color: 'white', fontSize: 18 }}>"RutineExercisesScreen"</Text>
+            </NavBar>
 
       <Text>{dayName}</Text>
 
@@ -76,8 +83,7 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
         routines.exercises.map((item: any, index: any) => (
           <Button
             key={index}
-            mode="contained"
-            onPress={() =>
+            onClick={() =>
               navigation.navigate("RoutineOneExercise", {
                 routineID: item.id,
                 routineName: item.name,
@@ -96,8 +102,7 @@ const RoutineExercisesScreen = ({ navigation, route }: CreateDaysScreenProps) =>
       )}
 
        <Button 
-            mode="outlined" 
-            onPress={goAddExe}>
+            onClick={goAddExe}>
               agregar mas ejercicios
             </Button>
     </View>

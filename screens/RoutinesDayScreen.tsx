@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList ,Alert} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Appbar, Button } from "react-native-paper";
+import { NavBar, Button } from "antd-mobile";
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NavigationProp } from "@react-navigation/native";
 
 interface DaysScreenProps {
@@ -48,9 +49,15 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
 
   return (
     <View>
-      <Appbar.Header>
-        <Appbar.Content title="RutinasDayScreen" />
-      </Appbar.Header>
+       <NavBar
+                          back={<IconOutline name="right" />}
+                          onBack={() => navigation.goBack()}
+                          backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
+                          style={{ backgroundColor: '#1890ff' }}
+                        >
+                          <Text style={{ color: 'white', fontSize: 18 }}>"RutinasDayScreen"</Text>
+                  </NavBar>
+      
       <Text>{routineName}</Text>
       {routines
         .filter((item) => item.id === routineID) // Filtra solo la rutina actual
@@ -58,9 +65,7 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
           Object.values(item.days).map((day: any, index) => ( // Mapea correctamente los días
             <Button
               key={index}
-              
-              mode="contained"
-              onPress={() => navigation.navigate("RoutineExercises",{ dayID: day.id,dayName: day.name ,routineID:routineID, routineName:routineName})}
+              onClick={() => navigation.navigate("RoutineExercises",{ dayID: day.id,dayName: day.name ,routineID:routineID, routineName:routineName})}
               style={{ margin: 20 }}
             >
               {day.name}
@@ -68,9 +73,8 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
           ))
         )}
 
-    <Button 
-      mode="outlined" 
-      onPress={goAddDays}>
+    <Button  
+      onClick={goAddDays}>
         Agregar mas dias
       </Button>
     </View>

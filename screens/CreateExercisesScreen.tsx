@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Alert } from "react-native";
+import { View, Alert , Text} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Appbar, Button, TextInput, Text } from "react-native-paper";
+import { NavBar, Button, Input } from "antd-mobile";
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 
 interface CreateDaysScreenProps {
@@ -121,46 +122,49 @@ const CreateDaysScreen = ({ navigation, route }: CreateDaysScreenProps) => {
 
   return (
     <View style={{ padding: 16 }}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={`Día: ${dayName}`} />
-      </Appbar.Header>
+       <NavBar
+              back={<IconOutline name="right" />}
+              onBack={() => navigation.goBack()}
+              backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
+              style={{ backgroundColor: '#1890ff' }}
+            >
+              <Text style={{ color: 'white', fontSize: 18 }}>{`Día: ${dayName}`}</Text>
+      </NavBar>
 
-      <TextInput
-        mode="outlined"
+      <Input
         placeholder="Nombre del ejercicio"
         value={exeName}
-        onChangeText={setExeName}
+        onChange={setExeName}
         style={{ marginBottom: 10 }}
       />
-      <TextInput
-        mode="outlined"
+      <Input
         placeholder="Series (1-5)"
         value={set}
-        onChangeText={validateSet}
-        keyboardType="numeric"
+        onChange={validateSet}
+        type="number"
         style={{ marginBottom: 10 }}
       />
-      <TextInput
-        mode="outlined"
+      <Input
         placeholder="Peso (0-500 kg)"
         value={weight}
-        onChangeText={validateWeight}
-        keyboardType="numeric"
+        onChange={validateWeight}
+        type="number"
         style={{ marginBottom: 10 }}
       />
-      <TextInput
-        mode="outlined"
+      <Input
         placeholder="RIR"
         value={rir}
-        onChangeText={setRir}
-        keyboardType="numeric"
+        onChange={setRir}
+        type="number"
         style={{ marginBottom: 10 }}
       />
 
       {error ? <Text style={{ color: "red", marginBottom: 10 }}>{error}</Text> : null}
 
-      <Button mode="contained" onPress={saveExercise} disabled={!!error || set === "" || weight === "" || parseInt(set) < 0 || parseInt(set) > 6 }>
+      <Button 
+        onClick={saveExercise} 
+        disabled={!!error || set === "" || weight === "" || parseInt(set) < 0 || parseInt(set) > 6 }
+        >
         Guardar Ejercicio
       </Button>
     </View>

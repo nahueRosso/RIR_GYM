@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList } from 'react-native';
+import { View, FlatList, Text } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationProp } from '@react-navigation/native';
-import { Button, Text, Dialog, Portal, Provider } from 'react-native-paper'; // Importar componentes de Paper
+import { Button, Dialog, NavBar, Space } from 'antd-mobile';
+import { IconOutline } from '@ant-design/icons-react-native';
 
 interface HomeScreenProps {
   navigation: NavigationProp<any>;
@@ -15,7 +16,7 @@ interface Routine {
 
 const DeleteRoutineScreen = ({ navigation }: HomeScreenProps) => {
   const [routines, setRoutines] = useState<Routine[]>([]);
-  const [visible, setVisible] = useState(false); 
+  const [visible, setVisible] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState<Routine | null>(null);
 
   useEffect(() => {
@@ -33,73 +34,95 @@ const DeleteRoutineScreen = ({ navigation }: HomeScreenProps) => {
   }, []);
 
   const showDeleteDialog = (routine: Routine) => {
-    setRoutineToDelete(routine); 
-    setVisible(true); 
+    setRoutineToDelete(routine);
+    setVisible(true);
   };
 
-  // Ocultar el diálogo
   const hideDeleteDialog = () => {
-    setVisible(false); // Ocultar el diálogo
-    setRoutineToDelete(null); // Limpiar la rutina seleccionada
+    setVisible(false);
+    setRoutineToDelete(null);
   };
 
-  // Eliminar la rutina
   const confirmDelete = async () => {
     if (routineToDelete) {
       try {
-        // Filtrar las rutinas para eliminar la seleccionada
         const updatedRoutines = routines.filter(routine => routine.id !== routineToDelete.id);
-        // Actualizar AsyncStorage
         await AsyncStorage.setItem('routines', JSON.stringify(updatedRoutines));
-        // Actualizar el estado
         setRoutines(updatedRoutines);
       } catch (error) {
         console.error('Error al eliminar rutina:', error);
       }
     }
-    hideDeleteDialog(); // Ocultar el diálogo después de eliminar
+    hideDeleteDialog();
   };
 
   return (
-    <Provider> {/* Proveedor de React Native Paper */}
+    <View style={{ flex: 1 }}>
+      <NavBar
+        back={<IconOutline name="right" />}
+        onBack={() => navigation.goBack()}
+        backArrow={false}
+        style={{ backgroundColor: '#1890ff' }}
+      >
+        Eliminar Rutina
+      </NavBar>
+
       <View style={{ padding: 16 }}>
-        <Text style={{ fontSize: 20, marginBottom: 16 }}>Eliminar Rutina:</Text>
+        <Text style={{ fontSize: 20, marginBottom: 16, color: '#252525' }}>
+          Selecciona una rutina para eliminar:
+        </Text>
+
         <FlatList
-        
           data={routines}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View style={{ flexDirection: 'row', marginVertical: 8, alignItems: 'center' }}>
-              <Text style={{ flex: 1, fontSize: 16,color:'#252525' }}>{item.name}</Text>
+            <Space 
+              direction='horizontal' 
+              style={{ 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                // marginVertical: 8,
+                width: '100%'
+              }}
+            >
+              <Text style={{ fontSize: 16, color: '#252525' }}>{item.name}</Text>
               <Button
-                mode="contained"
-                color="red"
-                onPress={() => showDeleteDialog(item)} // Mostrar el diálogo al presionar
+                color="danger"
+                onClick={() => showDeleteDialog(item)}
+                size="small"
               >
                 Eliminar
               </Button>
-            </View>
+            </Space>
           )}
         />
 
-        <Portal>
-          <Dialog visible={visible} onDismiss={hideDeleteDialog}>
-            <Dialog.Title>Eliminar rutina</Dialog.Title>
-            <Dialog.Content>
-              <Text>
-                ¿Estás seguro de que deseas eliminar la rutina "{routineToDelete?.name}"?
-              </Text>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button onPress={hideDeleteDialog}>Cancelar</Button>
-              <Button onPress={confirmDelete} color="red">
-                Eliminar
-              </Button>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
+        <Dialog
+          visible={visible}
+          content={
+            <Text>
+              ¿Estás seguro de que deseas eliminar la rutina "{routineToDelete?.name}"?
+            </Text>
+          }
+          actions={[
+            [
+              {
+                key: 'cancel',
+                text: 'Cancelar',
+                onClick: hideDeleteDialog,
+              },
+              {
+                key: 'delete',
+                text: 'Eliminar',
+                bold: true,
+                danger: true,
+                onClick: confirmDelete,
+              },
+            ],
+          ]}
+        />
       </View>
-    </Provider>
+    </View>
   );
 };
 

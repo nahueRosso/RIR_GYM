@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, Alert } from "react-native";
-import { Appbar, Button, TextInput } from "react-native-paper";
+import { NavBar, Button, Input } from "antd-mobile";
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NavigationProp } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -125,9 +126,14 @@ const RoutineOneExerciseScreen = ({
 
   return (
     <View style={{ flex: 1 }}>
-      <Appbar.Header>
-        <Appbar.Content title={main?.name || "Ejercicio"} />
-      </Appbar.Header>
+      <NavBar
+                          back={<IconOutline name="right" />}
+                          onBack={() => navigation.goBack()}
+                          backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
+                          style={{ backgroundColor: '#1890ff' }}
+                        >
+                          <Text style={{ color: 'white', fontSize: 18 }}>{main?.name || "Ejercicio"}</Text>
+                  </NavBar>
 
       <View style={{ padding: 16 }}>
         <Text style={{ textAlign: "center", marginBottom: 16 }}>
@@ -136,8 +142,7 @@ const RoutineOneExerciseScreen = ({
 
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Button 
-            mode="contained" 
-            onPress={getPreviousExercise} 
+            onClick={getPreviousExercise} 
             style={{ flex: 1, margin: 5 }}
             disabled={isSaving}
           >
@@ -147,12 +152,12 @@ const RoutineOneExerciseScreen = ({
           <View style={{ flex: 2, alignItems: 'center' }}>
             <View style={{ flexDirection: "row", justifyContent: 'center', flexWrap: 'wrap' }}>
               {weights.map((weight: any, idx: any) => (
-                <TextInput
+                <Input
                   key={idx}
                   value={weight.toString()}
                   // placeholder={weight.toString()}
-                  onChangeText={(text) => handleWeightChange(idx, text)}
-                  keyboardType="numeric"
+                  onChange={(text) => handleWeightChange(idx, text)}
+                  type="number"
                   style={{ margin: 5, width: 60, textAlign: 'center' }}
                 />
               ))}
@@ -160,8 +165,7 @@ const RoutineOneExerciseScreen = ({
           </View>
 
           <Button 
-            mode="contained" 
-            onPress={getNextExercise} 
+            onClick={getNextExercise} 
             style={{ flex: 1, margin: 5 }}
             disabled={isSaving}
           >

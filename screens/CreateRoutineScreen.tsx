@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appbar, Button, TextInput, Portal, Dialog } from 'react-native-paper';
+import { NavBar, Button, Input, Dialog } from 'antd-mobile';
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NavigationProp } from '@react-navigation/native';
+
 
 interface CreateRoutineScreenProps {
   navigation: NavigationProp<any>;
@@ -10,29 +12,19 @@ interface CreateRoutineScreenProps {
 
 const CreateRoutineScreen = ({ navigation }: CreateRoutineScreenProps) => {
   const [routineName, setRoutineName] = useState('');
-  const [routinesCount, setRoutinesCount] = useState(0); // Estado para contar las rutinas
-  const [visible, setVisible] = useState<boolean>(true);
+  const [routinesCount, setRoutinesCount] = useState(0);
+  const [visible, setVisible] = useState(false);
 
-  // Cargar el número de rutinas al iniciar la pantalla
   useEffect(() => {
     const loadRoutinesCount = async () => {
       try {
         const storedData = await AsyncStorage.getItem('routines');
         const routines = storedData ? JSON.parse(storedData) : [];
-  
-        if (!Array.isArray(routines)) {
-          console.error('Error: routines no es un array', routines);
-          setRoutinesCount(0); // Evita que el estado tenga un valor incorrecto
-          return;
-        }
-  
-        setRoutinesCount(routines.length); // Actualizar el contador de rutinas
+        setRoutinesCount(routines.length);
       } catch (error) {
         console.error('Error al cargar rutinas:', error);
-        setRoutinesCount(0);
       }
     };
-  
     loadRoutinesCount();
   }, []);
   
@@ -83,40 +75,50 @@ const CreateRoutineScreen = ({ navigation }: CreateRoutineScreenProps) => {
   };
 
   return (
-    <View style={{ padding: 16 }}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title="Crear Rutina" />
-      </Appbar.Header>
+    <View style={{ flex: 1 }}>
+      {/* NavBar reemplaza al Appbar.Header */}
+      <NavBar
+        back={<IconOutline name="right" />}
+        onBack={() => navigation.goBack()}
+        backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
+        style={{ backgroundColor: '#1890ff' }}
+      >
+        <Text style={{ color: 'white', fontSize: 18 }}>Crear Rutina</Text>
+      </NavBar>
 
-      {/* Mostrar mensaje si se alcanzó el límite de rutinas */}
-      {routinesCount >= 7 && (
-        <Portal>
-          <Dialog visible={visible}>
-            <Dialog.Title>Eliminar rutina</Dialog.Title>
-            <Dialog.Content>
+      <View style={{ padding: 16 }}>
+        {/* Input reemplaza TextInput */}
+        <Input
+          placeholder="Nombre de la rutina"
+          value={routineName}
+          onChange={setRoutineName}
+          style={{ marginBottom: 16 }}
+        />
+
+        <Button color="primary" onClick={saveRoutine}>
+          Guardar rutina
+        </Button>
+
+        {/* Dialog reemplaza el Portal/Dialog de Paper */}
+        <Dialog
+          visible={visible && routinesCount >= 7}
+          content={
+            <View>
               <Text>¡Llegaste al máximo de rutinas (7)!</Text>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button mode="contained" onPress={goDelate} style={{ margin: 20 }}>
-                DelateRoutine
-              </Button>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
-      )}
-
-      <TextInput
-        mode="outlined"
-        placeholder="Nombre de la rutina"
-        value={routineName}
-        onChangeText={setRoutineName}
-        style={{ marginBottom: 10 }}
-      />
-
-      <Button mode="contained" onPress={saveRoutine}>
-        Guardar rutina
-      </Button>
+            </View>
+          }
+          actions={[
+            {
+              key: 'delete',
+              text: 'DelateRoutine',
+              onClick: () => {
+                navigation.navigate('DelateRoutine');
+                setVisible(false);
+              },
+            },
+          ]}
+        />
+      </View>
     </View>
   );
 };

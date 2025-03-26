@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appbar, Button } from 'react-native-paper';
+import { NavBar, Button } from 'antd-mobile';
+import { IconOutline } from '@ant-design/icons-react-native';
 import { NavigationProp } from '@react-navigation/native';
+import {AddOutline , AntOutline } from 'antd-mobile-icons'
 
 interface RoutinesScreenProps {
   navigation: NavigationProp<any>;
@@ -36,19 +38,27 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
 
   return (
     <View>
-      <Appbar.Header>
-        <Appbar.Content title="RoutinesScreen" />
-      </Appbar.Header>
+       <NavBar
+                          back={<IconOutline name="right" />}
+                          onBack={() => navigation.goBack()}
+                          backArrow={false} // Ocultamos la flecha por defecto para usar nuestro icono
+                          style={{ backgroundColor: '#1890ff' }}
+                        >
+                          <Text style={{ color: 'white', fontSize: 18 }}>"RoutinesScreen"</Text>
+                  </NavBar>
       <Text>Lista de Rutinas:</Text>
+      {/* <AntOutline> */}
+     <AddOutline />
+      {/* </AntOutline> */}
+
       {routines.map((item: any, index: any) => {
   return (
     <Button
       key={index}  
-      mode="contained"
-      onPress={() =>  navigation.navigate('RoutinesDay', { routineID: item.id,routineName: item.name })}
+      onClick={() =>  navigation.navigate('RoutinesDay', { routineID: item.id,routineName: item.name })}
       style={{ margin: 20 }}
     >
-      {item.name} {console.log(item.name)}
+      {item.name} 
     </Button>
   );
 })}
