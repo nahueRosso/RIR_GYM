@@ -31,34 +31,39 @@ const RoutineExercisesScreen = ({
     const fetchRoutines = async () => {
       try {
         const storedData = await AsyncStorage.getItem("routines");
-        const routinesList: Routine[] = storedData
-          ? JSON.parse(storedData)
-          : [];
-
+        const routinesList: Routine[] = storedData ? JSON.parse(storedData) : [];
+  
         // Buscar la rutina correspondiente
         const foundRoutine = routinesList.find((item) => item.id === routineID);
         if (!foundRoutine) {
           console.warn("Rutina no encontrada.");
           return;
         }
-
+  
         // Buscar el día correspondiente
         const foundDay = foundRoutine.days.find((day: any) => day.id === dayID);
         if (!foundDay) {
           console.warn("Día no encontrado.");
           return;
         }
-
+  
         setRoutines(foundDay);
       } catch (error) {
         console.error("Error al cargar rutinas:", error);
       } finally {
-        setLoading(false); // Finaliza la carga
+        setLoading(false);
       }
     };
-
+  
+    // 1️⃣ Agregamos el listener para el evento 'focus'
+    const unsubscribe = navigation.addListener('focus', fetchRoutines);
+  
+    // 2️⃣ Ejecutamos la carga inicial
     fetchRoutines();
-  }, [routineID, dayID]);
+  
+    // 3️⃣ Limpiamos el listener al desmontar
+    return unsubscribe;
+  }, [routineID, dayID, navigation]); // ← Añadimos navigation a las dependencias
 
   const goAddExe = () => {
     navigation.navigate("CreateExercises", {

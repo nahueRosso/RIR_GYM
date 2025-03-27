@@ -60,13 +60,13 @@ export default function App() {
         <Stack.Navigator initialRouteName="Home" >
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Routines" component={RoutinesScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="RoutinesDay" component={RoutinesDayScreen} />
-          <Stack.Screen name="RoutineExercises" component={RoutineExercisesScreen} />
-          <Stack.Screen name="RoutineOneExercise" component={RoutineOneExerciseScreen} />
-          <Stack.Screen name="CreateDays" component={CreateDaysRoutinesScreen} />
-          <Stack.Screen name="CreateRoutine" component={CreateRoutineScreen} />
-          <Stack.Screen name="CreateExercises" component={CreateExercisesScreen} />
-          <Stack.Screen name="DelateRoutine" component={DelateRoutineScreen} />
+          <Stack.Screen name="RoutinesDay" component={RoutinesDayScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="RoutineExercises" component={RoutineExercisesScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="RoutineOneExercise" component={RoutineOneExerciseScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="CreateDays" component={CreateDaysRoutinesScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="CreateRoutine" component={CreateRoutineScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="CreateExercises" component={CreateExercisesScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="DelateRoutine" component={DelateRoutineScreen} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </ConfigProvider>

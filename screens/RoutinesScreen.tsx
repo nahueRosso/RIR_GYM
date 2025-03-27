@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, Dimensions, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavBar, Button } from "antd-mobile";
-import { IconOutline } from "@ant-design/icons-react-native";
+import {  Button } from "antd-mobile";
 import { NavigationProp } from "@react-navigation/native";
 import { AddOutline, AntOutline } from "antd-mobile-icons";
-
-import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
-// import { NavBar, Button, Image } from "antd-mobile";
-// import { NavigationProp } from "@react-navigation/native";
 import { DeleteOutline, LeftOutline } from "antd-mobile-icons";
-{
-  /* <DeleteOutline /> */
-}
+
 
 interface RoutinesScreenProps {
   navigation: NavigationProp<any>;
@@ -30,19 +23,24 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
     const fetchRoutines = async () => {
       try {
         const storedData = await AsyncStorage.getItem("routines");
-        const routinesList: Routine[] = storedData
-          ? JSON.parse(storedData)
-          : [];
+        const routinesList: Routine[] = storedData ? JSON.parse(storedData) : [];
         setRoutines(routinesList);
       } catch (error) {
         console.error("Error al cargar rutinas:", error);
       }
     };
-
+  
+    // Agrega un listener para cuando la pantalla recibe foco
+    const unsubscribe = navigation.addListener('focus', fetchRoutines);
+    
+    // Ejecuta la primera carga
     fetchRoutines();
-  }, []);
+  
+    // Limpia el listener al desmontar
+    return unsubscribe;
+  }, [navigation]); // ⬅️ Asegúrate de incluir navigation en las dependencias
 
-  console.log(routines);
+  console.log(routines.length);
   console.log(routines[routines.length - 1]);
 
   return (
@@ -66,12 +64,12 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
               color: "#ffffff",
               borderColor: "#28282A",
               backgroundColor: "#28282A",
-              textTransform: "uppercase",
+              textTransform: "capitalize",
               margin: 10,
               width: "80%", // Usar porcentaje para mejor responsividad
               maxWidth: 300,
               borderStyle: "solid",
-              borderRadius: 30,
+              borderRadius: 10,
               alignSelf: "center", // Centrar cada botón individualmente
             }}
           >
@@ -79,8 +77,8 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
           </Button>
         );
       })}
-      <Button
-        color="success"
+
+{routines.length < 5?<Button
         onClick={() => navigation.navigate("CreateRoutine")}
         style={{
           fontFamily: "Cochin",
@@ -95,13 +93,14 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
           height: 100,
           maxWidth: 300,
           borderStyle: "solid",
-          borderRadius: 30,
+          borderRadius: 10,
           alignSelf: "center",
           overflow: "hidden", // Importante para contener el View absoluto
           position: "relative",
           display: "flex",
+          
         }}
-      >
+        >
         <View
           style={{
             position: "absolute",
@@ -115,11 +114,12 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
             justifyContent: "center",
             alignItems: "center",
           }}
-        >
+          >
           <Text style={styles.textP}>CREATE NEW</Text>
           <Text style={styles.textP}>ROUTINE</Text>
         </View>
 
+           
         <View
           style={{
             position: "absolute",
@@ -136,29 +136,28 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
         >
           <AddOutline
             style={{
-              fontSize: 24, // Tamaño del icono (puedes ajustar este valor)
-              color: "#000", // Color negro
+              fontSize: 40, // Tamaño del icono (puedes ajustar este valor)
               // Las siguientes propiedades eliminan cualquier borde:
               borderWidth: 0,
-              borderColor: "transparent",
+              color: "#28282A",
+              borderColor: "#28282A",
             }}
           />
         </View>
-        {/* <Text style={{ opacity: 0 }}>CreateRoutine</Text> */}
-
         <View
           style={{
             position: "absolute",
-            width: 120,
+            width: 150,
             height: 120,
-            right: -15,
+            right: -60,
             bottom: 0,
             borderRadius: 10,
             backgroundColor: "#BCFD0E",
-            transform: [{ rotate: "35deg" }],
+            transform: [{ rotate: "30deg" }],
           }}
         />
-      </Button>
+      </Button>:''}
+      
 
       <View style={styles.buttonBackContainer}>
         <Button
@@ -181,7 +180,7 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
 
       <View style={styles.buttonDeleteContainer}>
         <Button
-          color="success"
+         
           style={styles.buttonDelete}
           onClick={() => navigation.navigate("DelateRoutine")}
           // style={styles.button}
