@@ -204,7 +204,7 @@ const CreateDaysScreen = ({ navigation, route }: CreateDaysScreenProps) => {
               fontWeight: "light",
             }}
           >
-            Guardar rutina
+            Guardar Ejerciciogit 
           </Text>
 
           <View
