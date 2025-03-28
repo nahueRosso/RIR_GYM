@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavBar, Button, List, Selector, Space, Dialog } from "antd-mobile";
 import { IconOutline } from "@ant-design/icons-react-native";
 import { NavigationProp } from "@react-navigation/native";
+import { DeleteOutline, AddOutline, LeftOutline } from "antd-mobile-icons";
 
 interface CreateDaysScreenProps {
   navigation: NavigationProp<any>;
@@ -45,6 +46,8 @@ const CreateDaysScreen = ({ navigation, route }: CreateDaysScreenProps) => {
     { label: "Gluteos", value: "Gluteos" },
     { label: "Gemelos", value: "Gemelos" },
   ]);
+
+console.log(routineName)
 
   useEffect(() => {
     let isMounted = true; // Flag para evitar actualizaciones si el componente se desmontó
@@ -163,51 +166,65 @@ const CreateDaysScreen = ({ navigation, route }: CreateDaysScreenProps) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ padding: 16 }}>
-        {/* <Text style={{ fontSize: 16, marginBottom: 16 }}>Días existentes:</Text> */}
-
-        {/* {days.length > 0 ? (
-          <List>
-            {days.map((day) => (
-              <List.Item
-                key={day.id}
-                onClick={() =>
-                  navigation.navigate("CreateExercises", {
-                    dayID: day.id,
-                    dayName: day.name,
-                    routineName,
-                  })
-                }
-              >
-                {day.name}
-              </List.Item>
-            ))}
-          </List>
-        ) : (
-          <Text style={{ marginBottom: 16 }}>No hay días agregados aún</Text>
-        )} */}
-
-        <Text style={{ fontSize: 16, marginVertical: 16 }}>
-          Agregar nuevos días:
-        </Text>
-
+    <View style={{ flex: 1, backgroundColor: "#161618" }}>
+      <Text
+        style={{
+          color: "white",
+          fontSize: 25,
+          fontFamily: "Cochin",
+          textAlign: "center",
+          marginTop: 20,
+          marginBottom: 0,
+          fontWeight: "light",
+        }}
+      >
+        AGREGAR DIAS
+      </Text>
+      <View style={{ paddingLeft: 38, paddingRight: 38 }}>
+      <Text
+        style={{
+          color: "white",
+          fontSize: 15,
+          marginBottom:8,
+          marginTop:13,
+          textAlign: "left",
+          fontFamily: "Cochin",
+          fontWeight: "light",
+        }}
+      >
+        Seleccione dias
+      </Text>
         <Selector
           options={daysOptions}
           value={selectedDays}
           onChange={setSelectedDays}
           multiple
           style={{
-            "--border-radius": "100px",
+            "--border-radius": "50px",
             "--border": "solid transparent 1px",
-            "--checked-border": "solid var(--adm-color-primary) 1px",
-            "--padding": "8px 24px",
+            "--checked-border": "solid transparent 1px",
+            "--padding": "4px 16px",
+            "--color": "#28282A",
+            "--text-color": "#aaa",
+            "--checked-color": "#BCFD0E",
+            "--checked-text-color": "#161618",
+            fontFamily: "Cochin",
           }}
           showCheckMark={false}
         />
-        <Text style={{ fontSize: 16, marginVertical: 16 }}>
-          Ejercicios prioritarios:
-        </Text>
+        <Text
+        style={{
+          color: "white",
+          fontSize: 15,
+          marginBottom:8,
+          marginTop:13,
+          textAlign: "left",
+          fontFamily: "Cochin",
+          fontWeight: "light",
+        }}
+      >
+        Seleccione Ejercicios
+      </Text>
 
         <Selector
           options={exeOptions}
@@ -215,30 +232,98 @@ const CreateDaysScreen = ({ navigation, route }: CreateDaysScreenProps) => {
           onChange={setSelectedExercises} // Actualiza el nuevo estado
           multiple
           style={{
-            "--border-radius": "100px",
+            "--border-radius": "50px",
             "--border": "solid transparent 1px",
-            "--checked-border": "solid var(--adm-color-primary) 1px",
-            "--padding": "8px 24px",
+            "--checked-border": "solid transparent 1px",
+            "--padding": "4px 16px",
+            "--color": "#28282A",
+            "--text-color": "#aaa",
+            "--checked-color": "#BCFD0E",
+            "--checked-text-color": "#161618",
+            fontFamily: "Cochin",
           }}
           showCheckMark={false}
         />
-
-        <Space direction="vertical" style={{ marginTop: 16 }}>
-          <Button
-            color="primary"
-            onClick={saveDayRoutine}
-            disabled={selectedDays.length === 0 || isMaxDaysReached}
-          >
-            Guardar Días Seleccionados
-          </Button>
-
-          {isMaxDaysReached && (
-            <Text style={{ color: "red", textAlign: "center" }}>
-              ¡Has alcanzado el límite de 7 días por rutina!
-            </Text>
-          )}
-        </Space>
       </View>
+
+      <Button
+        onClick={saveDayRoutine}
+        disabled={selectedDays.length === 0 || isMaxDaysReached}
+        style={{
+          fontFamily: "Cochin",
+          fontWeight: "lighter",
+          fontSize: 17,
+          color: "#ffffff",
+          borderColor: "#28282A",
+          backgroundColor: "#28282A",
+          textTransform: "capitalize",
+          margin: 10,
+          width: "80%",
+          maxWidth: 300,
+          borderStyle: "solid",
+          borderRadius: 10,
+          alignSelf: "center",
+          overflow: "hidden",
+          position: "relative",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <Text
+          style={{
+            color: "white",
+            fontSize: 17,
+            margin: 3,
+            fontFamily: "Cochin",
+            textAlign: "center",
+            fontWeight: "light",
+            textTransform:'capitalize',
+          }}
+        >
+          Guardar Días
+        </Text>
+
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            zIndex: 100,
+            height: "100%",
+            width: "30%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              color: "blanco",
+              fontSize: 15,
+              marginLeft: 30,
+              fontFamily: "Cochin",
+              textAlign: "right",
+              fontWeight: "light",
+            }}
+          >
+            {/* {day.name.slice(0, 3)} */}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            position: "absolute",
+            width: 100,
+            height: 100,
+            right: -60,
+            bottom: -20,
+            borderRadius: 10,
+            backgroundColor: "#BCFD0E",
+            transform: [{ rotate: "25deg" }],
+          }}
+        />
+      </Button>
+
       <Dialog
         visible={visible}
         content={
@@ -271,6 +356,44 @@ const CreateDaysScreen = ({ navigation, route }: CreateDaysScreenProps) => {
           borderColor: "#060608",
         }}
       />
+
+       <View
+              style={{
+                position: "absolute",
+                bottom: 80,
+                left: 40,
+                display: "flex",
+                alignContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Button
+                color="success"
+                style={{
+                  fontSize: 17,
+                  color: "#161618",
+                  borderColor: "#A1D70F",
+                  backgroundColor: "#BCFD0E",
+                  width: 40,
+                  height: 40,
+                  maxWidth: 300,
+                  borderStyle: "solid",
+                  borderRadius: 30,
+                }}
+                onClick={() => navigation.goBack()}
+                // style={styles.button}
+              >
+                <LeftOutline
+                  style={{
+                    position: "absolute",
+                    right: 12,
+                    top: 10,
+                    color: "#161618",
+                    fontWeight: "bold",
+                  }}
+                />
+              </Button>
+            </View>
     </View>
   );
 };

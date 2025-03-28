@@ -53,8 +53,7 @@ const RoutineScreen = ({ navigation, route }: DaysScreenProps) => {
     navigation.navigate("CreateDays", { routineName: routineName });
   };
 
-
-console.log(routines)
+  console.log(routines);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#161618" }}>
@@ -116,7 +115,10 @@ console.log(routines)
                   fontWeight: "light",
                 }}
               >
-                {day.priorityExercises[0]} {`- ${day.priorityExercises[1]}`} 
+                {day.priorityExercises[0]}{" "}
+                {day.priorityExercises[1]
+                  ? `- ${day.priorityExercises[1]}`
+                  : ""}
               </Text>
 
               <View
@@ -134,19 +136,17 @@ console.log(routines)
                 }}
               >
                 <Text
-                style={{
-                  color: "blanco",
-                  fontSize: 15,
-                  marginLeft: 30,
-                  fontFamily: "Cochin",
-                  textAlign: "right",
-                  fontWeight: "light",
-                }}
-              >
-                
-                {day.name.slice(0, 3)}
-
-</Text>
+                  style={{
+                    color: "blanco",
+                    fontSize: 15,
+                    marginLeft: 30,
+                    fontFamily: "Cochin",
+                    textAlign: "right",
+                    fontWeight: "light",
+                  }}
+                >
+                  {day.name.slice(0, 3)}
+                </Text>
               </View>
 
               <View
@@ -209,21 +209,11 @@ console.log(routines)
               fontFamily: "Cochin",
               textAlign: "center",
               fontWeight: "light",
+
+              lineHeight: 30,
             }}
           >
-            CREATE NEW
-          </Text>
-          <Text
-            style={{
-              color: "white",
-              fontSize: 20,
-              margin: 3,
-              fontFamily: "Cochin",
-              textAlign: "center",
-              fontWeight: "light",
-            }}
-          >
-            ROUTINE
+            ADD NEW{"\n"}DAYS
           </Text>
         </View>
 
@@ -295,6 +285,45 @@ console.log(routines)
             style={{
               position: "absolute",
               right: 12,
+              top: 10,
+              color: "#161618",
+              fontWeight: "bold",
+            }}
+          />
+        </Button>
+      </View>
+      <View
+        style={{
+          position: "absolute",
+          bottom: 80,
+          right: 40,
+          display: "flex",
+          alignContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          style={{
+            fontSize: 17,
+            color: "#161618",
+            borderColor: "#A90000",
+            backgroundColor: "#C70000",
+            width: 40,
+            height: 40,
+            maxWidth: 300,
+            borderStyle: "solid",
+            borderRadius: 30,
+          }}
+          onClick={() => navigation.navigate("DelateRoutineDay",{
+            routineID: routineID,
+            routineName:  routineName,
+          })}
+          // style={styles.button}
+        >
+          <DeleteOutline
+            style={{
+              position: "absolute",
+              right: 11,
               top: 10,
               color: "#161618",
               fontWeight: "bold",

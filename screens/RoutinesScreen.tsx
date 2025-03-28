@@ -115,8 +115,8 @@ const RoutineScreen = ({ navigation }: RoutinesScreenProps) => {
             alignItems: "center",
           }}
           >
-          <Text style={styles.textP}>CREATE NEW</Text>
-          <Text style={styles.textP}>ROUTINE</Text>
+          <Text style={styles.textP}>CREATE NEW{'\n'}ROUTINE</Text>
+          {/* <Text style={styles.textP}>ROUTINE</Text> */}
         </View>
 
            
@@ -221,6 +221,7 @@ const styles = StyleSheet.create({
     fontFamily: "Cochin",
     textAlign: "center",
     fontWeight: "light",
+    lineHeight: 30,
   },
   textH2: {
     color: "white",

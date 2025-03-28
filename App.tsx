@@ -10,11 +10,13 @@ import HomeScreen from './screens/HomeScreen';
 import RoutinesScreen from './screens/RoutinesScreen';
 import CreateDaysRoutinesScreen from './screens/CreateDaysRoutinesScreen';
 import CreateRoutineScreen from './screens/CreateRoutineScreen';
-import DelateRoutineScreen from './screens/DelateRoutineScreen';
 import RoutinesDayScreen from './screens/RoutinesDayScreen' 
 import CreateExercisesScreen from './screens/CreateExercisesScreen'
 import RoutineExercisesScreen from './screens/RoutineExercisesScreen'
 import RoutineOneExerciseScreen from './screens/RoutineOneExerciseScreen'
+import DelateRoutineScreen from './screens/DelateRoutineScreen';
+import DelateRoutineDayScreen from './screens/DelateRoutineDayScreen';
+import DelateRoutineExercisesScreen from './screens/DelateRoutineExercisesScreen';
 
 // Configuración de navegación
 const Stack = createStackNavigator();
@@ -23,36 +25,10 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [dbError, setDbError] = useState(null);
 
-  useEffect(() => {
-    // Inicializar la base de datos al cargar la aplicación
-    // initDatabase()
-    //   .then(() => {
-    //     console.log('Base de datos inicializada con éxito');
-    //     setIsLoading(false);
-    //   })
-    //   .catch(error => {
-    //     console.error('Error al inicializar la base de datos:', error);
-    //     setDbError(error);
-    //     setIsLoading(false);
-    //   });
-  }, []);
+  // useEffect(() => {
 
-  // if (isLoading) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //       <Text>Inicializando base de datos...</Text>
-  //     </View>
-  //   );
-  // }
+  // }, []);
 
-  // if (dbError) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  //       <Text style={{ color: 'red' }}>Error al inicializar la base de datos</Text>
-  //     </View>
-  //   );
-  // }
 
   return (
     <ConfigProvider locale={enUS}>
@@ -67,6 +43,8 @@ export default function App() {
           <Stack.Screen name="CreateRoutine" component={CreateRoutineScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="CreateExercises" component={CreateExercisesScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="DelateRoutine" component={DelateRoutineScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="DelateRoutineDay" component={DelateRoutineDayScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="DelateRoutineExercises" component={DelateRoutineExercisesScreen} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </ConfigProvider>
