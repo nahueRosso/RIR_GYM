@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavBar, Button } from "antd-mobile";
-import { IconOutline } from "@ant-design/icons-react-native";
 import { NavigationProp } from "@react-navigation/native";
 import { DeleteOutline, AddOutline, LeftOutline } from "antd-mobile-icons";
 

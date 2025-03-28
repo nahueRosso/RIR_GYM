@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, Alert } from "react-native";
 import { NavBar, Button, Input } from "antd-mobile";
-import { IconOutline } from "@ant-design/icons-react-native";
 import { NavigationProp } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DeleteOutline, RightOutline, LeftOutline, AddOutline } from "antd-mobile-icons";
@@ -271,7 +270,7 @@ const RoutineOneExerciseScreen = ({
             }}
             disabled={isSaving}
           >
-            <RightOutline style={{
+            <LeftOutline style={{
               right: 12,
               top: 10,
               color: "#A1D70F",

@@ -3,7 +3,6 @@ import { View, FlatList, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp } from "@react-navigation/native";
 import { Button, Dialog, NavBar, Space } from "antd-mobile";
-import { IconOutline } from "@ant-design/icons-react-native";
 import { DeleteOutline, LeftOutline, AddOutline } from "antd-mobile-icons";
 
 interface HomeScreenProps {

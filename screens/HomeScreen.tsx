@@ -1,106 +1,10 @@
-// import { NavBar, Button, Image } from "antd-mobile";
-// import { NavigationProp } from "@react-navigation/native";
-// import { View, Text, StyleSheet, Dimensions, ImageBackground } from "react-native";
-// import React from "react";
-// import db from "../db.json";
-// import OptimizedImage from "../components/OptimizedImage";
-// import Svg, { Polygon } from "react-native-svg";
-
-// const imageBk = require("../assets/fotoPortada_full.jpg");
-
-// const windowWidth = Dimensions.get("window").width;
-// const windowHeight = Dimensions.get("window").height;
-// const screenWidth = Dimensions.get("screen").width;
-// const screenHeight = Dimensions.get("screen").height;
-
-// interface HomeScreenProps {
-//   navigation: NavigationProp<any>;
-// }
-
-// export default function HomeScreen({ navigation }: HomeScreenProps) {
-//   console.log(
-//     "windowWidth: ",
-//     windowWidth,
-//     "windowHeight: ",
-//     windowHeight,
-//     "screenWidth: ",
-//     screenWidth,
-//     "screenHeight: ",
-//     screenHeight
-//   );
-
-//   return (
-//     <ImageBackground 
-//       source={imageBk} 
-//       style={styles.backgroundImage}
-//       resizeMode="cover"
-      
-//     >
-//       <View style={styles.container}>
-//         <View style={styles.content}>
-//           <Button
-//             color="primary"
-//             onClick={() => navigation.navigate("Routines")}
-//             style={styles.button}
-//           >
-//             Ir a las rutinas
-//           </Button>
-
-         
-//         </View>
-//       </View>
-//     </ImageBackground>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   backgroundImage: {
-//     flex: 1,
-//     width: '100%',
-//     height: '100%',
-//   },
-//   container: {
-//     flex: 1,
-//     width: screenWidth,
-//     height: screenHeight,
-//   },
-//   content: {
-//     display:'flex',
-//     padding: 0,
-//     backfaceVisibility: "hidden",
-//     alignContent:'center',
-//     alignItems:'center',
-//     justifyContent:'flex-end'
-//   },
-//   box: {
-//     width: screenWidth,
-//     height: screenHeight,
-//     margin: 0,
-//     padding: 0,
-//     backfaceVisibility: "hidden",
-//   },
-//   boxOut: {
-//     width: screenWidth,
-//     height: screenHeight * 0.4,
-//     zIndex: 100,
-//     position: "absolute",
-//     bottom: 0,
-//   },
-//   button: {
-//     marginBottom: 20,
-//     zIndex: 100,
-//     position:'absolute',
-//     justifyContent:'space-between',
-//     alignItems:'center'
-//   },
-// });
 
 import React from 'react';
 import {View, Dimensions, StyleSheet, Text, ImageBackground } from 'react-native';
 import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
 import { NavBar, Button, Image } from "antd-mobile";
 import { NavigationProp } from "@react-navigation/native";
-import {RightOutline } from "antd-mobile-icons"
+// import {RightOutline } from "antd-mobile-icons"
 
 const imageBk = require("../assets/fotoPortada_full.jpg");
 
@@ -127,8 +31,11 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
               onClick={() => navigation.navigate("Routines")}
               style={styles.button}
             >
-              {`EMPEZAR  `}
-              <RightOutline style={styles.svg}/>
+              <Text style={{fontFamily:'Cochin',
+    fontWeight: 'bold',
+    fontSize: 17,
+    color:'#161618',}}>{`EMPEZAR  `}</Text>
+              {/* <RightOutline style={styles.svg}/> */}
             </Button>
           </View>
 
