@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, Text, StyleSheet } from "react-native";
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Modal, 
+  Alert 
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp } from "@react-navigation/native";
-import { Button, Dialog, NavBar, Space } from "antd-mobile";
-import { DeleteOutline, LeftOutline, AddOutline } from "antd-mobile-icons";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface HomeScreenProps {
   navigation: NavigationProp<any>;
@@ -16,33 +23,32 @@ interface Routine {
 
 const DeleteRoutineScreen = ({ navigation }: HomeScreenProps) => {
   const [routines, setRoutines] = useState<Routine[]>([]);
-  const [visible, setVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState<Routine | null>(null);
-  
 
   useEffect(() => {
     const fetchRoutines = async () => {
       try {
         const storedData = await AsyncStorage.getItem("routines");
-        const routinesList: Routine[] = storedData
-          ? JSON.parse(storedData)
-          : [];
+        const routinesList: Routine[] = storedData ? JSON.parse(storedData) : [];
         setRoutines(routinesList);
       } catch (error) {
         console.error("Error al cargar rutinas:", error);
       }
     };
 
+    const unsubscribe = navigation.addListener('focus', fetchRoutines);
     fetchRoutines();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   const showDeleteDialog = (routine: Routine) => {
     setRoutineToDelete(routine);
-    setVisible(true);
+    setModalVisible(true);
   };
 
   const hideDeleteDialog = () => {
-    setVisible(false);
+    setModalVisible(false);
     setRoutineToDelete(null);
   };
 
@@ -56,176 +62,189 @@ const DeleteRoutineScreen = ({ navigation }: HomeScreenProps) => {
         setRoutines(updatedRoutines);
       } catch (error) {
         console.error("Error al eliminar rutina:", error);
+        Alert.alert("Error", "No se pudo eliminar la rutina");
       }
     }
     hideDeleteDialog();
   };
 
+  const renderRoutineItem = ({ item }: { item: Routine }) => (
+    <TouchableOpacity
+      style={styles.routineButton}
+      onPress={() => showDeleteDialog(item)}
+    >
+      <Text style={styles.routineButtonText}>{item.name}</Text>
+      
+      <View style={styles.deleteIconContainer}>
+        <Icon name="delete" size={20} color="#161618" />
+      </View>
+      
+      <View style={styles.deleteDecoration} />
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#161618" }}>
-      <Text
-        style={{
-          color: "white",
-          fontSize: 25,
-          fontFamily: "Cochin",
-          textAlign: "center",
-          marginTop: 20,
-          marginBottom: 40,
-          fontWeight: "light",
-        }}
-      >
-        ELIMINAR RUTINA
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>ELIMINAR RUTINA</Text>
 
-      {routines.map((item: any, index: any) => (
-        <Button
-          key={index}
-          onClick={() => showDeleteDialog(item)}
-          style={{
-            fontFamily: "Cochin",
-            fontWeight: "lighter",
-            fontSize: 17,
-            color: "#ffffff",
-            borderColor: "#28282A",
-            backgroundColor: "#28282A",
-            textTransform: "capitalize",
-            margin: 10,
-            width: "80%",
-            maxWidth: 300,
-            borderStyle: "solid",
-            borderRadius: 10,
-            alignSelf: "center",
-            overflow: "hidden",
-            position: "relative",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <Text
-            style={{
-              color: "white",
-              fontSize: 17,
-              margin: 3,
-              fontFamily: "Cochin",
-              textAlign: "center",
-              fontWeight: "light",
-            }}
-          >
-            {item.name}
-          </Text>
-
-          <View
-            style={{
-              position: "absolute",
-              // backgroundColor: "yellow",
-              top: 0,
-              right: 0,
-              zIndex: 100,
-              height: "100%",
-              width: "30%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <DeleteOutline
-              style={{
-                position: "absolute",
-                right: 11,
-                top: 10,
-                color: "#161618",
-                fontWeight: "bold",
-              }}
-            />
-          </View>
-
-          <View
-            style={{
-              position: "absolute",
-              width: 100,
-              height: 100,
-              right: -60,
-              bottom: -20,
-              borderRadius: 10,
-              backgroundColor: "#C70000",
-              transform: [{ rotate: "25deg" }],
-            }}
-          />
-        </Button>
-      ))}
-     
-      <Dialog
-        visible={visible}
-        content={
-          <Text style={{ color: "white",borderColor: "#161618" }}>
-            {" "}
-            ¿Estás seguro de que deseas eliminar la rutina "
-            {routineToDelete?.name}"?
-          </Text>
-        }
-        actions={[
-          [
-            {
-              key: "cancel",
-              text: "Cancelar",
-              onClick: hideDeleteDialog,
-              style: { color: "white",borderColor: "#000" }, // Texto blanco para el botón
-            },
-            {
-              key: "delete",
-              text: "Eliminar",
-              bold: true,
-              danger: true,
-              onClick: confirmDelete,
-              style: { color: "#161618", backgroundColor: "#C70000",borderColor: "#000" }, // Texto blanco para el botón
-            },
-          ],
-        ]}
-        bodyStyle={{
-          backgroundColor: "#161618", // Fondo negro
-          borderColor: "#161618", // Borde oscuro
-        }}
+      <FlatList
+        data={routines}
+        renderItem={renderRoutineItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContainer}
       />
 
-      <View
-        style={{
-          position: "absolute",
-          bottom: 80,
-          left: 40,
-          display: "flex",
-          alignContent: "center",
-          alignItems: "center",
-        }}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={hideDeleteDialog}
       >
-        <Button
-          color="success"
-          style={{
-            fontSize: 17,
-            color: "#161618",
-            borderColor: "#A1D70F",
-            backgroundColor: "#BCFD0E",
-            width: 40,
-            height: 40,
-            maxWidth: 300,
-            borderStyle: "solid",
-            borderRadius: 30,
-          }}
-          onClick={() => navigation.goBack()}
-          // style={styles.button}
-        >
-          <LeftOutline
-            style={{
-              position: "absolute",
-              right: 12,
-              top: 10,
-              color: "#161618",
-              fontWeight: "bold",
-            }}
-          />
-        </Button>
-      </View>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              ¿Estás seguro de que deseas eliminar la rutina "{routineToDelete?.name}"?
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={hideDeleteDialog}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.deleteButtonModal}
+                onPress={confirmDelete}
+              >
+                <Text style={styles.buttonText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Icon name="arrow-back" size={20} color="#161618" />
+      </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#161618",
+    padding: 20,
+  },
+  title: {
+    color: "white",
+    fontSize: 25,
+    fontFamily: "Cochin",
+    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 40,
+    fontWeight: "300",
+  },
+  listContainer: {
+    paddingBottom: 80,
+  },
+  routineButton: {
+    backgroundColor: "#28282A",
+    marginVertical: 10,
+    width: "80%",
+    maxWidth: 300,
+    borderRadius: 10,
+    alignSelf: "center",
+    overflow: "hidden",
+    position: "relative",
+    padding: 15,
+  },
+  routineButtonText: {
+    color: "white",
+    fontSize: 17,
+    fontFamily: "Cochin",
+    textAlign: "center",
+    fontWeight: "300",
+  },
+  deleteIconContainer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    height: "100%",
+    width: "30%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteDecoration: {
+    position: "absolute",
+    width: 100,
+    height: 100,
+    right: -60,
+    bottom: -20,
+    borderRadius: 10,
+    backgroundColor: "#C70000",
+    transform: [{ rotate: "25deg" }],
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#161618",
+    borderRadius: 10,
+    padding: 20,
+    width: "80%",
+    borderColor: "#28282A",
+    borderWidth: 1,
+  },
+  modalText: {
+    color: "white",
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  cancelButton: {
+    backgroundColor: "#28282A",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginRight: 10,
+    alignItems: "center",
+  },
+  deleteButtonModal: {
+    backgroundColor: "#C70000",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginLeft: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  backButton: {
+    position: "absolute",
+    bottom: 30,
+    left: 30,
+    backgroundColor: "#BCFD0E",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 export default DeleteRoutineScreen;

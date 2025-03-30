@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, Alert } from "react-native";
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Alert,
+  Modal
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavBar, Button, Input, Dialog } from "antd-mobile";
 import { NavigationProp } from "@react-navigation/native";
-import { DeleteOutline, AddOutline, LeftOutline } from "antd-mobile-icons";
-
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface CreateRoutineScreenProps {
   navigation: NavigationProp<any>;
@@ -13,7 +19,7 @@ interface CreateRoutineScreenProps {
 const CreateRoutineScreen = ({ navigation }: CreateRoutineScreenProps) => {
   const [routineName, setRoutineName] = useState("");
   const [routinesCount, setRoutinesCount] = useState(0);
-  const [visible, setVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const loadRoutinesCount = async () => {
@@ -25,8 +31,11 @@ const CreateRoutineScreen = ({ navigation }: CreateRoutineScreenProps) => {
         console.error("Error al cargar rutinas:", error);
       }
     };
+    
+    const unsubscribe = navigation.addListener('focus', loadRoutinesCount);
     loadRoutinesCount();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   const saveRoutine = async () => {
     try {
@@ -39,10 +48,10 @@ const CreateRoutineScreen = ({ navigation }: CreateRoutineScreenProps) => {
       }
 
       if (routines.length >= 7) {
-        setVisible(true);
-        Alert.alert("Error", "No puedes crear más de 7 rutinas.");
+        setModalVisible(true);
         return;
       }
+
       if (!routineName.trim()) {
         Alert.alert("Error", "El nombre de la rutina no puede estar vacío.");
         return;
@@ -51,6 +60,7 @@ const CreateRoutineScreen = ({ navigation }: CreateRoutineScreenProps) => {
       const newRoutine = {
         id: Date.now().toString(),
         name: routineName,
+        days: {}
       };
 
       const updatedRoutines = [...routines, newRoutine];
@@ -60,178 +70,169 @@ const CreateRoutineScreen = ({ navigation }: CreateRoutineScreenProps) => {
 
       Alert.alert("Éxito", "Rutina guardada");
       setRoutineName("");
-      navigation.navigate("CreateDays", { routineName });
+      navigation.navigate("CreateDays", { routineName: routineName });
     } catch (error) {
       console.error("Error al guardar rutina:", error);
       Alert.alert("Error", "Hubo un problema al guardar la rutina.");
     }
   };
 
-  const goDelate = () => {
+  const goToDeleteRoutine = () => {
+    setModalVisible(false);
     navigation.navigate("DelateRoutine");
-    setVisible(false);
   };
 
+  const goBack = () => navigation.goBack();
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#161618" }}>
-      <Text
-        style={{
-          color: "white",
-          fontSize: 25,
-          fontFamily: "Cochin",
-          textAlign: "center",
-          marginTop: 20,
-          marginBottom: 40,
-          fontWeight: "light",
-        }}
-      >
-        AGREGAR RUTINA
-      </Text>
-      <View style={{ padding: 16 }}>
-        <Input
+    <View style={styles.container}>
+      <Text style={styles.title}>AGREGAR RUTINA</Text>
+      
+      <View style={styles.inputContainer}>
+        <TextInput
           placeholder="Nombre de la rutina"
+          placeholderTextColor="#888"
           value={routineName}
-          onChange={setRoutineName}
-          style={{ marginBottom: 16,margin: 20,marginLeft:38,'--color':'#ffffff',"--placeholder-color":'#888' }}
+          onChangeText={setRoutineName}
+          style={styles.input}
         />
 
-        <Button
-          onClick={saveRoutine}
-          style={{
-            fontFamily: "Cochin",
-            fontWeight: "lighter",
-            fontSize: 17,
-            color: "#ffffff",
-            borderColor: "#28282A",
-            backgroundColor: "#28282A",
-            textTransform: "capitalize",
-            margin: 10,
-            width: "80%",
-            maxWidth: 300,
-            borderStyle: "solid",
-            borderRadius: 10,
-            alignSelf: "center",
-            overflow: "hidden",
-            position: "relative",
-            display: "flex",
-            justifyContent: "center",
-          }}
+        <TouchableOpacity
+          onPress={saveRoutine}
+          style={styles.saveButton}
         >
-          <Text
-            style={{
-              color: "white",
-              fontSize: 17,
-              margin: 3,
-              fontFamily: "Cochin",
-              textAlign: "center",
-              fontWeight: "light",
-            }}
-          >
-            Guardar rutina
-          </Text>
-
-          <View
-            style={{
-              position: "absolute",
-              // backgroundColor: "yellow",
-              top: 0,
-              right: 0,
-              zIndex: 100,
-              height: "100%",
-              width: "30%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
-              style={{
-                color: "blanco",
-                fontSize: 15,
-                marginLeft: 30,
-                fontFamily: "Cochin",
-                textAlign: "right",
-                fontWeight: "light",
-              }}
-            >
-              {/* {day.name.slice(0, 3)} */}
-            </Text>
-          </View>
-
-          <View
-            style={{
-              position: "absolute",
-              width: 100,
-              height: 100,
-              right: -60,
-              bottom: -20,
-              borderRadius: 10,
-              backgroundColor: "#BCFD0E",
-              transform: [{ rotate: "25deg" }],
-            }}
-          />
-        </Button>
-
-
-        {/* Dialog reemplaza el Portal/Dialog de Paper */}
-        <Dialog
-          visible={visible && routinesCount >= 7}
-          content={
-            <View>
-              <Text>¡Llegaste al máximo de rutinas (7)!</Text>
-            </View>
-          }
-          actions={[
-            {
-              key: "delete",
-              text: "DelateRoutine",
-              onClick: () => {
-                navigation.navigate("DelateRoutine");
-                setVisible(false);
-              },
-            },
-          ]}
-        />
+          <Text style={styles.saveButtonText}>Guardar rutina</Text>
+          
+          <View style={styles.buttonDecoration} />
+        </TouchableOpacity>
       </View>
-      <View
-        style={{
-          position: "absolute",
-          bottom: 80,
-          left: 40,
-          display: "flex",
-          alignContent: "center",
-          alignItems: "center",
-        }}
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
       >
-        <Button
-          color="success"
-          style={{
-            fontSize: 17,
-            color: "#161618",
-            borderColor: "#A1D70F",
-            backgroundColor: "#BCFD0E",
-            width: 40,
-            height: 40,
-            maxWidth: 300,
-            borderStyle: "solid",
-            borderRadius: 30,
-          }}
-          onClick={() => navigation.goBack()}
-          // style={styles.button}
-        >
-          <LeftOutline
-            style={{
-              position: "absolute",
-              right: 12,
-              top: 10,
-              color: "#161618",
-              fontWeight: "bold",
-            }}
-          />
-        </Button>
-      </View>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>¡Llegaste al máximo de rutinas (7)!</Text>
+            
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={goToDeleteRoutine}
+            >
+              <Text style={styles.modalButtonText}>Eliminar Rutina</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={goBack}
+      >
+        <Icon name="arrow-back" size={20} color="#161618" />
+      </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#161618",
+    padding: 20,
+  },
+  title: {
+    color: "white",
+    fontSize: 25,
+    fontFamily: "Cochin",
+    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 40,
+    fontWeight: "300",
+  },
+  inputContainer: {
+    paddingHorizontal: 16,
+  },
+  input: {
+    backgroundColor: "#28282A",
+    color: "white",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+    marginHorizontal: 20,
+    fontFamily: "Cochin",
+  },
+  saveButton: {
+    backgroundColor: "#28282A",
+    marginVertical: 10,
+    width: "80%",
+    maxWidth: 300,
+    borderRadius: 10,
+    alignSelf: "center",
+    overflow: "hidden",
+    position: "relative",
+    padding: 15,
+  },
+  saveButtonText: {
+    color: "white",
+    fontSize: 17,
+    fontFamily: "Cochin",
+    textAlign: "center",
+    fontWeight: "300",
+  },
+  buttonDecoration: {
+    position: "absolute",
+    width: 100,
+    height: 100,
+    right: -60,
+    bottom: -20,
+    borderRadius: 10,
+    backgroundColor: "#BCFD0E",
+    transform: [{ rotate: "25deg" }],
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#161618",
+    borderRadius: 10,
+    padding: 20,
+    width: "80%",
+    borderColor: "#28282A",
+    borderWidth: 1,
+  },
+  modalText: {
+    color: "white",
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButton: {
+    backgroundColor: "#C70000",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  backButton: {
+    position: "absolute",
+    bottom: 30,
+    left: 30,
+    backgroundColor: "#BCFD0E",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 export default CreateRoutineScreen;

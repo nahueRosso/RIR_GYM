@@ -1,25 +1,55 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, Alert } from "react-native";
-import { NavBar, Button, Input } from "antd-mobile";
+import { 
+  View, 
+  Text, 
+  Alert, 
+  TouchableOpacity, 
+  TextInput, 
+  StyleSheet,
+  ActivityIndicator
+} from "react-native";
 import { NavigationProp } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DeleteOutline, RightOutline, LeftOutline, AddOutline } from "antd-mobile-icons";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface CreateDaysScreenProps {
   navigation: NavigationProp<any>;
   route: any;
 }
 
-const RoutineOneExerciseScreen = ({
-  navigation,
-  route,
-}: CreateDaysScreenProps) => {
-  const { routineID, routineName, apis, dayID, routineNameFirst } =
-    route.params;
-  const [api, setApi] = useState(apis);
-  const [main, setMain] = useState(() =>
-    api.exercises.find((e: any) => e.id === routineID)
-  );
+interface Exercise {
+  id: string;
+  name: string;
+  arrSetWeight: number[];
+  arrSetRIR: number[];
+}
+
+interface RoutineDay {
+  id: string;
+  name: string;
+  exercises: Exercise[];
+  priorityExercises: string[];
+}
+
+interface Routine {
+  id: string;
+  name: string;
+  days: {
+    [key: string]: RoutineDay;
+  };
+}
+interface ApiData {
+  exercises: Exercise[];
+  // Agrega otras propiedades que pueda tener tu objeto api
+}
+
+
+const RoutineOneExerciseScreen = ({ navigation, route }: CreateDaysScreenProps) => {
+  const { routineID, routineName, apis, dayID, routineNameFirst } = route.params;
+  const [api, setApi] = useState<ApiData>(apis);
+const [main, setMain] = useState<Exercise | undefined>(() =>
+  api.exercises.find((e) => e.id === routineID)
+);
   const [weights, setWeights] = useState<any>(main?.arrSetWeight || []);
   const [rirs, setRirs] = useState<any>(main?.arrSetRIR || []);
   const [index, setIndex] = useState(
@@ -38,7 +68,7 @@ const RoutineOneExerciseScreen = ({
             (r: any) => r.name === routineNameFirst
           );
           if (routine) {
-            const day = routine.days.find((d: any) => d.id === dayID);
+            const day: any  = Object.values(routine.days).find((d: any) => d.id === dayID);
             if (day) {
               const exercise = day.exercises.find(
                 (e: any) => e.id === main?.id
@@ -72,7 +102,7 @@ const RoutineOneExerciseScreen = ({
       );
       if (!currentRoutine) throw new Error("Rutina no encontrada");
   
-      const currentDay = currentRoutine.days.find((d: any) => d.id === dayID);
+      const currentDay:any = Object.values(currentRoutine.days).find((d: any) => d.id === dayID);
       if (!currentDay) throw new Error("Día no encontrado");
   
       const exerciseIndex = currentDay.exercises.findIndex(
@@ -82,7 +112,7 @@ const RoutineOneExerciseScreen = ({
   
       // Actualizar en AsyncStorage
       currentDay.exercises[exerciseIndex].arrSetWeight = [...weights];
-      currentDay.exercises[exerciseIndex].arrSetRIR = [...rirs]; // Añadido para guardar RIR
+      currentDay.exercises[exerciseIndex].arrSetRIR = [...rirs];
       await AsyncStorage.setItem("routines", JSON.stringify(routinesList));
   
       // Actualizar en el estado local
@@ -92,7 +122,7 @@ const RoutineOneExerciseScreen = ({
       );
       if (localExerciseIndex !== -1) {
         updatedApi.exercises[localExerciseIndex].arrSetWeight = [...weights];
-        updatedApi.exercises[localExerciseIndex].arrSetRIR = [...rirs]; // Añadido para actualizar estado local
+        updatedApi.exercises[localExerciseIndex].arrSetRIR = [...rirs];
         setApi(updatedApi);
       }
   
@@ -106,26 +136,19 @@ const RoutineOneExerciseScreen = ({
   };
 
   const handleWeightChange = (index: number, value: string) => {
-    console.log(weights);
-    console.log(index);
     const newWeights = [...weights];
     newWeights[index] = parseFloat(value) || 0;
     setWeights(newWeights);
   };
   
   const handlerirChange = (index: number, value: string) => {
-    console.log(rirs);
-    console.log(index);
     const newRir = [...rirs];
     newRir[index] = parseFloat(value) || 0;
     setRirs(newRir);
   };
 
   const getNextExercise = async () => {
-    // Primero guardamos los cambios del ejercicio actual
     await saveChanges();
-
-    // Luego navegamos al siguiente ejercicio
     setMain((prev: any) => {
       const currentIndex = api.exercises.findIndex(
         (e: any) => e.id === prev?.id
@@ -138,14 +161,10 @@ const RoutineOneExerciseScreen = ({
       setRirs(nextExercise.arrSetRIR || []);
       return nextExercise;
     });
-    console.log(main);
   };
 
   const getPreviousExercise = async () => {
-    // Primero guardamos los cambios del ejercicio actual
     await saveChanges();
-
-    // Luego navegamos al ejercicio anterior
     setMain((prev: any) => {
       const currentIndex = api.exercises.findIndex(
         (e: any) => e.id === prev?.id
@@ -159,256 +178,193 @@ const RoutineOneExerciseScreen = ({
       setRirs(prevExercise.arrSetRIR || []);
       return prevExercise;
     });
-    console.log(main);
   };
 
   const handleGoBack = async () => {
-    await saveChanges(); // Primero guarda los cambios
-    navigation.goBack(); // Luego navega hacia atrás
+    await saveChanges();
+    navigation.goBack();
   };
 
+  if (!main) {
+    return <ActivityIndicator size="large" color="#6200ee" />;
+  }
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#161618" }}>
-      <Text
-        style={{
-          color: "white",
-          textTransform: "uppercase",
-          fontSize: 25,
-          fontFamily: "Cochin",
-          textAlign: "center",
-          marginTop: 20,
-          marginBottom: 40,
-          fontWeight: "light",
-        }}
-      >
-        {main.name}
-      </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>{main.name.toUpperCase()}</Text>
 
-     <View>
-     <View style={{ paddingLeft: 16, paddingRight: 16 }}>
-        <View
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            flexDirection: "row",
-            marginBottom: 5,
-          }}
-        >
-          <View
-            style={{
-              width: 50,
-              height: 30,
-              backgroundColor: "#28282A",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              borderRadius: 40,
-            }}
-          >
-            <Text
-              style={{ marginBottom: 5, color: "#aaa", borderRadius: "50px" }}
-            >
-              {api.exercises.findIndex((e: any) => e.id === main?.id) + 1} /{" "}
-              {api.exercises.length}
-            </Text>
-          </View>
+      <View style={styles.contentContainer}>
+        <View style={styles.exerciseCounter}>
+          <Text style={styles.counterText}>
+            {api.exercises.findIndex((e: any) => e.id === main?.id) + 1} /{" "}
+            {api.exercises.length}
+          </Text>
         </View>
 
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-around",
-          }}
-        >
-          <Button
-            onClick={getPreviousExercise}
-            style={{
-              "--background-color": "#28282A",
-              "--border-color": "#28282A",
-              "--border-radius": "50px",
-              "--border-width": "5px",
-            }}
+        <View style={styles.navigationContainer}>
+          <TouchableOpacity 
+            onPress={getPreviousExercise}
+            style={styles.navButton}
             disabled={isSaving}
           >
-            <LeftOutline style={{
-              right: 12,
-              top: 10,
-              color: "#A1D70F",
-              fontWeight: "bold",
-            }}/>
-          </Button>
+            <Icon name="chevron-left" size={24} color="#A1D70F" />
+          </TouchableOpacity>
 
-          <Button
-            style={{
-              flex: 2,
-              height: 200,
-              backgroundColor: "#161618",
-              borderStyle: "dashed",  // Cambiado de --border-style
-              borderRadius: 25,       // Cambiado de 50px a número (en RN no usamos px)
-              borderWidth: 3,         // Cambiado de --border-width
-              borderColor: "#28282A", // Cambiado de --border-color
-              marginLeft: 20,
-              marginRight: 20,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexDirection: 'column',
-            }}
-          >
-            <AddOutline style={{color:"#aaaaaa"}}/>
-            <Text style={{color:"#aaaaaa"}}>{'\n'}add image</Text>
-          </Button>
+          <TouchableOpacity style={styles.imagePlaceholder}>
+            <Icon name="add-a-photo" size={24} color="#aaaaaa" />
+            <Text style={styles.imagePlaceholderText}>add image</Text>
+          </TouchableOpacity>
 
-          <Button
-            onClick={getNextExercise}
-            style={{
-              "--background-color": "#28282A",
-              "--border-color": "#28282A",
-              "--border-radius": "50px",
-              "--border-width": "5px",
-            }}
+          <TouchableOpacity 
+            onPress={getNextExercise}
+            style={styles.navButton}
             disabled={isSaving}
           >
-            <LeftOutline style={{
-              right: 12,
-              top: 10,
-              color: "#A1D70F",
-              fontWeight: "bold",
-            }}/>
-          </Button>
+            <Icon name="chevron-right" size={24} color="#A1D70F" />
+          </TouchableOpacity>
         </View>
-      </View>
-      <Text
-              style={{
-                color: "white",
-                fontSize: 15,
-                marginBottom:8,
-                marginTop:13,
-                textAlign: "center",
-                fontFamily: "Cochin",
-                fontWeight: "light",
-              }}
-            >
-              Series
-            </Text>
-      <View style={{ flex: 2, alignItems: "center" }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            marginTop: 10,
-          }}
-        >
 
+        <Text style={styles.sectionTitle}>Series</Text>
+        <View style={styles.inputContainer}>
           {weights.map((weight: any, idx: any) => (
-            <View key={idx} style={{backgroundColor:'#161618',width:60,margin:5,borderColor:'#28282A',borderRadius: 50, // Cambiado de '50px' a 50
-              borderWidth: 2,display:'flex',justifyContent:'center',alignItems:'center'}}>
-              <Input
-                key={idx}
+            <View key={idx} style={styles.inputWrapper}>
+              <TextInput
                 value={weight.toString()}
-                // placeholder={weight.toString()}
-                onChange={(text) => handleWeightChange(idx, text)}
-                type="number"
-                // color=''
-                style={{
-                  margin: 5,
-                  width: 60,
-                  "--color": "#aaa",
-                  "--text-align": "center",
-                }}
+                onChangeText={(text) => handleWeightChange(idx, text)}
+                keyboardType="numeric"
+                style={styles.input}
               />
             </View>
           ))}
         </View>
-      </View>
-     
-      <Text
-              style={{
-                color: "white",
-                fontSize: 15,
-                marginBottom:8,
-                marginTop:13,
-                textAlign: "center",
-                fontFamily: "Cochin",
-                fontWeight: "light",
-              }}
-            >
-              RIR
-            </Text>
-      <View style={{ flex: 2, alignItems: "center" }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            marginTop: 10,
-          }}
-        >
 
+        <Text style={styles.sectionTitle}>RIR</Text>
+        <View style={styles.inputContainer}>
           {rirs.map((rir: any, idx: any) => (
-            <View key={idx} style={{backgroundColor:'#161618',width:60,margin:5,borderColor:'#28282A',borderRadius: 50,
-              borderWidth: 2,display:'flex',justifyContent:'center',alignItems:'center'}}>
-              <Input
-                key={idx}
+            <View key={idx} style={styles.inputWrapper}>
+              <TextInput
                 value={rir.toString()}
-                // placeholder={weight.toString()}
-                onChange={(text) => handlerirChange(idx, text)}
-                type="number"
-                // color=''
-                style={{
-                  margin: 5,
-                  width: 60,
-                  "--color": "#aaa",
-                  "--text-align": "center",
-                }}
+                onChangeText={(text) => handlerirChange(idx, text)}
+                keyboardType="numeric"
+                style={styles.input}
               />
             </View>
           ))}
         </View>
       </View>
-     </View>
      
-      <View
-        style={{
-          position: "absolute",
-          bottom: 80,
-          left: 40,
-          display: "flex",
-          alignContent: "center",
-          alignItems: "center",
-        }}
+      <TouchableOpacity 
+        onPress={handleGoBack}
+        style={styles.backButton}
       >
-        <Button
-          color="success"
-          style={{
-            fontSize: 17,
-            color: "#161618",
-            borderColor: "#A1D70F",
-            backgroundColor: "#BCFD0E",
-            width: 40,
-            height: 40,
-            maxWidth: 300,
-            borderStyle: "solid",
-            borderRadius: 30,
-          }}
-          onClick={handleGoBack}
-          // style={styles.button}
-        >
-          <LeftOutline
-            style={{
-              position: "absolute",
-              right: 12,
-              top: 10,
-              color: "#161618",
-              fontWeight: "bold",
-            }}
-          />
-        </Button>
-      </View>
+        <Icon name="arrow-back" size={20} color="#161618" />
+      </TouchableOpacity>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#161618",
+    padding: 20,
+  },
+  title: {
+    color: "white",
+    fontSize: 25,
+    fontFamily: "Cochin",
+    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 40,
+    fontWeight: "300",
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  exerciseCounter: {
+    alignSelf: 'flex-end',
+    backgroundColor: "#28282A",
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginBottom: 10,
+  },
+  counterText: {
+    color: "#aaa",
+    fontSize: 14,
+  },
+  navigationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 30,
+  },
+  navButton: {
+    backgroundColor: "#28282A",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePlaceholder: {
+    flex: 2,
+    height: 200,
+    backgroundColor: "#161618",
+    borderStyle: "dashed",
+    borderRadius: 25,
+    borderWidth: 3,
+    borderColor: "#28282A",
+    marginHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePlaceholderText: {
+    color: "#aaaaaa",
+    marginTop: 10,
+  },
+  sectionTitle: {
+    color: "white",
+    fontSize: 15,
+    marginBottom: 8,
+    marginTop: 13,
+    textAlign: "center",
+    fontFamily: "Cochin",
+    fontWeight: "300",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  inputWrapper: {
+    backgroundColor: '#161618',
+    width: 60,
+    margin: 5,
+    borderColor: '#28282A',
+    borderRadius: 25,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  input: {
+    color: "#aaa",
+    textAlign: "center",
+    width: '100%',
+    padding: 5,
+  },
+  backButton: {
+    position: "absolute",
+    bottom: 30,
+    left: 30,
+    backgroundColor: "#BCFD0E",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default RoutineOneExerciseScreen;

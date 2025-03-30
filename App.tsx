@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { View, Text, ActivityIndicator } from 'react-native';
-import { ConfigProvider } from 'antd-mobile';
-import enUS from 'antd-mobile/es/locales/en-US';
+import { View, Text,Button, ActivityIndicator } from 'react-native';
+// import { ConfigProvider, Button } from "";
+// import enUS from '@ant-design/react-native/es/locale/en_US';
 
 // Importar las pantallas
 import HomeScreen from './screens/HomeScreen';
@@ -31,7 +31,7 @@ export default function App() {
 
 
   return (
-    <ConfigProvider locale={enUS}>
+    // <ConfigProvider locale={enUS}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home" >
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }}/>
@@ -47,6 +47,6 @@ export default function App() {
           <Stack.Screen name="DelateRoutineExercises" component={DelateRoutineExercisesScreen} options={{ headerShown: false }}/>
         </Stack.Navigator>
       </NavigationContainer>
-    </ConfigProvider>
+    // </ConfigProvider>
   );
 }

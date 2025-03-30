@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Modal,
+  FlatList,
+  Alert
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp } from "@react-navigation/native";
-import { Button, Dialog } from "antd-mobile";
-import { LeftOutline, DeleteOutline } from "antd-mobile-icons";
-
-interface DaysScreenProps {
-  navigation: NavigationProp<any>;
-  route: any;
-}
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface Day {
   id: string;
@@ -22,9 +24,14 @@ interface Routine {
   days: Record<string, Day>;
 }
 
+interface DaysScreenProps {
+  navigation: NavigationProp<any>;
+  route: any;
+}
+
 const DeleteRoutineDayScreen = ({ navigation, route }: DaysScreenProps) => {
   const [routines, setRoutines] = useState<Routine[]>([]);
-  const [visible, setVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [dayToDelete, setDayToDelete] = useState<{ routineId: number; dayId: string } | null>(null);
   const { routineID, routineName } = route.params;
 
@@ -34,10 +41,9 @@ const DeleteRoutineDayScreen = ({ navigation, route }: DaysScreenProps) => {
         const storedData = await AsyncStorage.getItem("routines");
         let routinesList: Routine[] = storedData ? JSON.parse(storedData) : [];
         
-        // Normalizar la estructura de days para que siempre sea objeto
+        // Normalizar la estructura de days
         routinesList = routinesList.map(routine => {
           if (Array.isArray(routine.days)) {
-            // Convertir array de días a objeto
             const daysObj = routine.days.reduce((acc: Record<string, Day>, day: Day) => {
               acc[day.id] = day;
               return acc;
@@ -52,16 +58,19 @@ const DeleteRoutineDayScreen = ({ navigation, route }: DaysScreenProps) => {
         console.error("Error al cargar rutinas:", error);
       }
     };
+
+    const unsubscribe = navigation.addListener('focus', fetchRoutines);
     fetchRoutines();
-  }, []);
+    return unsubscribe;
+  }, [navigation]);
 
   const showDeleteDialog = (routineId: number, dayId: string) => {
     setDayToDelete({ routineId, dayId });
-    setVisible(true);
+    setModalVisible(true);
   };
 
   const hideDeleteDialog = () => {
-    setVisible(false);
+    setModalVisible(false);
     setDayToDelete(null);
   };
 
@@ -81,75 +90,86 @@ const DeleteRoutineDayScreen = ({ navigation, route }: DaysScreenProps) => {
         setRoutines(updatedRoutines);
       } catch (error) {
         console.error("Error al eliminar día:", error);
+        Alert.alert("Error", "No se pudo eliminar el día");
       }
     }
     hideDeleteDialog();
   };
 
+  const renderDayItem = ({ item }: { item: [string, Day] }) => {
+    const [dayId, day] = item;
+    return (
+      <TouchableOpacity
+        key={dayId}
+        style={styles.dayButton}
+        onPress={() => showDeleteDialog(routineID, dayId)}
+      >
+        <Text style={styles.dayButtonText}>
+          {day.priorityExercises[0]}{" "}
+          {day.priorityExercises[1] ? `- ${day.priorityExercises[1]}` : ""}
+        </Text>
+
+        <View style={styles.deleteIconContainer}>
+          <Icon name="delete" size={20} color="#161618" />
+        </View>
+
+        <View style={styles.buttonDecoration} />
+      </TouchableOpacity>
+    );
+  };
+
+  const currentRoutine = routines.find(item => item.id === routineID);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ELIMINAR DÍA</Text>
 
-      {routines
-        .filter((item) => item.id === routineID)
-        .map((item) =>
-          Object.entries(item.days).map(([dayId, day]) => (
-            <Button
-              key={dayId}
-              onClick={() => showDeleteDialog(item.id, dayId)}
-              style={styles.dayButton}
-            >
-              <Text style={styles.dayButtonText}>
-                {day.priorityExercises[0]}{" "}
-                {day.priorityExercises[1] ? `- ${day.priorityExercises[1]}` : ""}
-              </Text>
+      {currentRoutine && (
+        <FlatList
+          data={Object.entries(currentRoutine.days)}
+          renderItem={renderDayItem}
+          keyExtractor={([dayId]) => dayId}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
 
-              <View style={styles.deleteIconContainer}>
-                <DeleteOutline style={styles.deleteIcon} />
-              </View>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={hideDeleteDialog}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              ¿Estás seguro de que deseas eliminar este día?
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={hideDeleteDialog}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.deleteButtonModal}
+                onPress={confirmDelete}
+              >
+                <Text style={styles.buttonText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
-              <View style={styles.buttonDecoration} />
-            </Button>
-          ))
-        )}
-
-      <Dialog
-        visible={visible}
-        content={
-          <Text style={styles.dialogText}>
-            ¿Estás seguro de que deseas eliminar este día?
-          </Text>
-        }
-        actions={[
-          [
-            {
-              key: "cancel",
-              text: "Cancelar",
-              onClick: hideDeleteDialog,
-              style: styles.cancelButton,
-            },
-            {
-              key: "delete",
-              text: "Eliminar",
-              bold: true,
-              danger: true,
-              onClick: confirmDelete,
-              style: styles.deleteButton,
-            },
-          ],
-        ]}
-        bodyStyle={styles.dialogBody}
-      />
-
-      <View style={styles.backButtonContainer}>
-        <Button
-          style={styles.backButton}
-          onClick={() => navigation.goBack()}
-        >
-          <LeftOutline style={styles.backIcon} />
-        </Button>
-      </View>
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Icon name="arrow-back" size={20} color="#161618" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -158,6 +178,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#161618",
+    padding: 20,
   },
   title: {
     color: "white",
@@ -168,29 +189,23 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     fontWeight: "300",
   },
+  listContainer: {
+    paddingBottom: 80,
+  },
   dayButton: {
-    fontFamily: "Cochin",
-    fontWeight: "300",
-    fontSize: 17,
-    color: "#ffffff",
-    borderColor: "#28282A",
     backgroundColor: "#28282A",
-    textTransform: "capitalize",
-    margin: 10,
+    marginVertical: 10,
     width: "80%",
     maxWidth: 300,
-    borderStyle: "solid",
     borderRadius: 10,
     alignSelf: "center",
     overflow: "hidden",
     position: "relative",
-    display: "flex",
-    justifyContent: "center",
+    padding: 15,
   },
   dayButtonText: {
     color: "white",
     fontSize: 17,
-    margin: 3,
     fontFamily: "Cochin",
     textAlign: "center",
     fontWeight: "300",
@@ -199,19 +214,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     right: 0,
-    zIndex: 100,
     height: "100%",
     width: "30%",
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-  },
-  deleteIcon: {
-    position: "absolute",
-    right: 11,
-    top: 10,
-    color: "#161618",
-    fontWeight: "bold",
   },
   buttonDecoration: {
     position: "absolute",
@@ -223,48 +229,60 @@ const styles = StyleSheet.create({
     backgroundColor: "#C70000",
     transform: [{ rotate: "25deg" }],
   },
-  dialogBody: {
-    backgroundColor: "#161618",
-    borderColor: "#161618",
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  dialogText: {
+  modalContent: {
+    backgroundColor: "#161618",
+    borderRadius: 10,
+    padding: 20,
+    width: "80%",
+    borderColor: "#28282A",
+    borderWidth: 1,
+  },
+  modalText: {
     color: "white",
-    borderColor: "#161618",
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   cancelButton: {
-    color: "white",
-    borderColor: "#000",
-  },
-  deleteButton: {
-    color: "#161618",
-    backgroundColor: "#C70000",
-    borderColor: "#000",
-  },
-  backButtonContainer: {
-    position: "absolute",
-    bottom: 80,
-    left: 40,
-    display: "flex",
-    alignContent: "center",
+    backgroundColor: "#28282A",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginRight: 10,
     alignItems: "center",
   },
+  deleteButtonModal: {
+    backgroundColor: "#C70000",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginLeft: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
   backButton: {
-    fontSize: 17,
-    color: "#161618",
-    borderColor: "#A1D70F",
+    position: "absolute",
+    bottom: 30,
+    left: 30,
     backgroundColor: "#BCFD0E",
     width: 40,
     height: 40,
-    maxWidth: 300,
-    borderStyle: "solid",
-    borderRadius: 30,
-  },
-  backIcon: {
-    position: "absolute",
-    right: 12,
-    top: 10,
-    color: "#161618",
-    fontWeight: "bold",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

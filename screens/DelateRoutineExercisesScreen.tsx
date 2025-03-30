@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import { 
+  View, 
+  Text, 
+  ActivityIndicator, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Modal,
+  FlatList,
+  Alert
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp } from "@react-navigation/native";
-import { Button, Dialog } from "antd-mobile";
-import { LeftOutline, DeleteOutline } from "antd-mobile-icons";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface Exercise {
   id: string;
@@ -22,7 +30,7 @@ interface Day {
 interface Routine {
   id: number;
   name: string;
-  days: Day[]; // Cambiado de Record<string, Day> a Day[]
+  days: Day[];
 }
 
 interface DeleteRoutineExercisesScreenProps {
@@ -34,7 +42,7 @@ const DeleteRoutineExercisesScreen = ({ navigation, route }: DeleteRoutineExerci
   const { dayID, dayName, routineID, routineName } = route.params;
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [currentDay, setCurrentDay] = useState<Day | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [exerciseToDelete, setExerciseToDelete] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -45,10 +53,10 @@ const DeleteRoutineExercisesScreen = ({ navigation, route }: DeleteRoutineExerci
         const routinesList: Routine[] = storedData ? JSON.parse(storedData) : [];
         setRoutines(routinesList);
         
-        // Buscar la rutina y día correspondiente
         const foundRoutine = routinesList.find(item => item.id === routineID);
+        console.log(foundRoutine)
         if (foundRoutine) {
-          const foundDay = foundRoutine.days.find(day => day.id === dayID);
+          const foundDay = Object.values(foundRoutine.days).find(day => day.id === dayID);
           setCurrentDay(foundDay || null);
         }
       } catch (error) {
@@ -57,60 +65,71 @@ const DeleteRoutineExercisesScreen = ({ navigation, route }: DeleteRoutineExerci
         setLoading(false);
       }
     };
-
+    
     const unsubscribe = navigation.addListener('focus', fetchRoutines);
     fetchRoutines();
     return unsubscribe;
   }, [routineID, dayID, navigation]);
-
+  
+  console.log(currentDay)
   const showDeleteDialog = (exerciseId: string) => {
     setExerciseToDelete(exerciseId);
-    setVisible(true);
+    setModalVisible(true);
   };
 
   const hideDeleteDialog = () => {
-    setVisible(false);
+    setModalVisible(false);
     setExerciseToDelete(null);
   };
 
   const confirmDelete = async () => {
     if (exerciseToDelete && currentDay) {
       try {
+        // Actualizamos las rutinas
         const updatedRoutines = routines.map(routine => {
           if (routine.id === routineID) {
-            // Encontrar el día a actualizar
-            const updatedDays = routine.days.map(day => {
+            const updatedDays = Object.values(routine.days).map(day => {
               if (day.id === dayID) {
-                // Filtrar el ejercicio a eliminar
-                const updatedExercises = day.exercises.filter(
-                  ex => ex.id !== exerciseToDelete
-                );
+                // Filtramos el ejercicio a eliminar
+                const updatedExercises = day.exercises.filter(ex => ex.id !== exerciseToDelete);
                 return { ...day, exercises: updatedExercises };
               }
               return day;
             });
-            
             return { ...routine, days: updatedDays };
           }
           return routine;
         });
 
         await AsyncStorage.setItem("routines", JSON.stringify(updatedRoutines));
-        setRoutines(updatedRoutines);
-        
-        // Actualizar el día actual en el estado
+        setRoutines(updatedRoutines); 
+        console.log('Ejercicio eliminado');
         const updatedDay = updatedRoutines
           .find(r => r.id === routineID)
           ?.days.find(d => d.id === dayID);
         setCurrentDay(updatedDay || null);
       } catch (error) {
         console.error("Error al eliminar ejercicio:", error);
+        Alert.alert("Error", `${error}` );
       }
     }
     hideDeleteDialog();
   };
 
-  const goBack = () => navigation.goBack();
+  const renderExerciseItem = ({ item }: { item: Exercise }) => (
+    <TouchableOpacity
+      style={styles.exerciseButton}
+      onPress={() => showDeleteDialog(item.id)}
+    >
+      <Text style={styles.exerciseButtonText}>{item.name}</Text>
+      
+      <View style={styles.deleteIconContainer}>
+        <Icon name="delete" size={20} color="#161618" />
+      </View>
+      
+      <View style={styles.buttonDecorationRed} />
+    </TouchableOpacity>
+  );
 
   if (loading) {
     return (
@@ -125,63 +144,53 @@ const DeleteRoutineExercisesScreen = ({ navigation, route }: DeleteRoutineExerci
       <Text style={styles.title}>ELIMINAR EJERCICIOS</Text>
 
       {currentDay?.exercises?.length ? (
-        currentDay.exercises.map((exercise) => (
-          <Button
-            key={exercise.id}
-            onClick={() => showDeleteDialog(exercise.id)}
-            style={styles.exerciseButton}
-          >
-            <Text style={styles.exerciseButtonText}>
-              {exercise.name}
-            </Text>
-
-            <View style={styles.deleteIconContainer}>
-              <DeleteOutline style={styles.deleteIcon} />
-            </View>
-
-            <View style={styles.buttonDecorationRed} />
-          </Button>
-        ))
+        <FlatList
+          data={currentDay.exercises}
+          renderItem={renderExerciseItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+        />
       ) : (
         <Text style={styles.noExercisesText}>No hay ejercicios disponibles</Text>
       )}
 
-      <Dialog
-        visible={visible}
-        content={
-          <Text style={styles.dialogText}>
-            ¿Estás seguro de que deseas eliminar este ejercicio?
-          </Text>
-        }
-        actions={[
-          [
-            {
-              key: "cancel",
-              text: "Cancelar",
-              onClick: hideDeleteDialog,
-              style: styles.cancelButton,
-            },
-            {
-              key: "delete",
-              text: "Eliminar",
-              bold: true,
-              danger: true,
-              onClick: confirmDelete,
-              style: styles.deleteButton,
-            },
-          ],
-        ]}
-        bodyStyle={styles.dialogBody}
-      />
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={hideDeleteDialog}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              ¿Estás seguro de que deseas eliminar este ejercicio?
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.cancelButton}
+                onPress={hideDeleteDialog}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.deleteButtonModal}
+                onPress={confirmDelete}
+              >
+                <Text style={styles.buttonText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
-      <View style={styles.backButtonContainer}>
-        <Button
-          style={styles.backButton}
-          onClick={goBack}
-        >
-          <LeftOutline style={styles.backIcon} />
-        </Button>
-      </View>
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Icon name="arrow-back" size={20} color="#161618" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -190,13 +199,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#161618",
-    paddingBottom: 100,
+    padding: 20,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: "#161618",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#161618",
   },
   title: {
     color: "white",
@@ -207,29 +216,23 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     fontWeight: "300",
   },
+  listContainer: {
+    paddingBottom: 80,
+  },
   exerciseButton: {
-    fontFamily: "Cochin",
-    fontWeight: "300",
-    fontSize: 17,
-    color: "#ffffff",
-    borderColor: "#28282A",
     backgroundColor: "#28282A",
-    textTransform: "capitalize",
-    margin: 10,
+    marginVertical: 10,
     width: "80%",
     maxWidth: 300,
-    borderStyle: "solid",
     borderRadius: 10,
     alignSelf: "center",
     overflow: "hidden",
     position: "relative",
-    display: "flex",
-    justifyContent: "center",
+    padding: 15,
   },
   exerciseButtonText: {
     color: "white",
     fontSize: 17,
-    margin: 3,
     fontFamily: "Cochin",
     textAlign: "center",
     fontWeight: "300",
@@ -244,19 +247,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     right: 0,
-    zIndex: 100,
     height: "100%",
     width: "30%",
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
-  },
-  deleteIcon: {
-    position: "absolute",
-    right: 11,
-    top: 10,
-    color: "#161618",
-    fontWeight: "bold",
   },
   buttonDecorationRed: {
     position: "absolute",
@@ -268,140 +262,60 @@ const styles = StyleSheet.create({
     backgroundColor: "#C70000",
     transform: [{ rotate: "25deg" }],
   },
-  addButton: {
-    fontFamily: "Cochin",
-    fontWeight: "300",
-    fontSize: 17,
-    color: "white",
-    borderColor: "#28282A",
-    backgroundColor: "#28282A",
-    textTransform: "uppercase",
-    marginTop: 10,
-    width: "80%",
-    height: 100,
-    maxWidth: 300,
-    borderStyle: "solid",
-    borderRadius: 10,
-    alignSelf: "center",
-    overflow: "hidden",
-    position: "relative",
-    display: "flex",
-  },
-  addButtonTextContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    zIndex: 100,
-    width: "70%",
-    height: "100%",
-    display: "flex",
+  modalOverlay: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  addButtonText: {
-    color: "white",
-    fontSize: 20,
-    margin: 3,
-    fontFamily: "Cochin",
-    textAlign: "center",
-    fontWeight: "300",
-    lineHeight: 30,
-  },
-  addIconContainer: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    zIndex: 100,
-    height: "100%",
-    width: "30%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addIcon: {
-    fontSize: 40,
-    borderWidth: 0,
-    color: "#28282A",
-    borderColor: "#28282A",
-  },
-  buttonDecorationGreen: {
-    position: "absolute",
-    width: 150,
-    height: 120,
-    right: -60,
-    bottom: 0,
-    borderRadius: 10,
-    backgroundColor: "#BCFD0E",
-    transform: [{ rotate: "30deg" }],
-  },
-  dialogBody: {
+  modalContent: {
     backgroundColor: "#161618",
-    borderColor: "#161618",
+    borderRadius: 10,
+    padding: 20,
+    width: "80%",
+    borderColor: "#28282A",
+    borderWidth: 1,
   },
-  dialogText: {
+  modalText: {
     color: "white",
-    borderColor: "#161618",
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   cancelButton: {
-    color: "white",
-    borderColor: "#000",
-  },
-  deleteButton: {
-    color: "#161618",
-    backgroundColor: "#C70000",
-    borderColor: "#000",
-  },
-  backButtonContainer: {
-    position: "absolute",
-    bottom: 80,
-    left: 40,
-    display: "flex",
-    alignContent: "center",
+    backgroundColor: "#28282A",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginRight: 10,
     alignItems: "center",
   },
+  deleteButtonModal: {
+    backgroundColor: "#C70000",
+    padding: 10,
+    borderRadius: 5,
+    flex: 1,
+    marginLeft: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
   backButton: {
-    fontSize: 17,
-    color: "#161618",
-    borderColor: "#A1D70F",
+    position: "absolute",
+    bottom: 30,
+    left: 30,
     backgroundColor: "#BCFD0E",
     width: 40,
     height: 40,
-    maxWidth: 300,
-    borderStyle: "solid",
-    borderRadius: 30,
-  },
-  backIcon: {
-    position: "absolute",
-    right: 12,
-    top: 10,
-    color: "#161618",
-    fontWeight: "bold",
-  },
-  deleteDayButtonContainer: {
-    position: "absolute",
-    bottom: 80,
-    right: 40,
-    display: "flex",
-    alignContent: "center",
+    borderRadius: 20,
+    justifyContent: "center",
     alignItems: "center",
-  },
-  deleteDayButton: {
-    fontSize: 17,
-    color: "#161618",
-    borderColor: "#A90000",
-    backgroundColor: "#C70000",
-    width: 40,
-    height: 40,
-    maxWidth: 300,
-    borderStyle: "solid",
-    borderRadius: 30,
-  },
-  deleteDayIcon: {
-    position: "absolute",
-    right: 11,
-    top: 10,
-    color: "#161618",
-    fontWeight: "bold",
   },
 });
 
